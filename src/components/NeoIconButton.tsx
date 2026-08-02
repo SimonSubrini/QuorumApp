@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, PixelRatio } from 'react-native';
+import { TouchableOpacity, StyleSheet, ViewStyle, PixelRatio } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../styles/theme';
 
-interface NeoButtonProps {
-  title: string;
+interface NeoIconButtonProps {
+  icon: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'success';
   style?: ViewStyle;
-  textStyle?: TextStyle;
   disabled?: boolean;
+  size?: number;
 }
 
-export const NeoButton: React.FC<NeoButtonProps> = ({ 
-  title, 
+export const NeoIconButton: React.FC<NeoIconButtonProps> = ({ 
+  icon, 
   onPress, 
   variant = 'primary', 
   style, 
-  textStyle,
-  disabled = false
+  disabled = false,
+  size = 24
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -30,15 +31,13 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
     }
   };
 
-  const getTextColor = () => {
+  const getIconColor = () => {
     if (variant === 'success') return theme.colors.text;
     return theme.colors.textLight;
   };
 
-  // Ajuste de accesibilidad para letras grandes
   const fontScale = PixelRatio.getFontScale();
-  const dynamicVerticalPadding = fontScale > 1.2 ? 8 : 14;
-  const dynamicHorizontalPadding = fontScale > 1.2 ? 16 : 24;
+  const padding = fontScale > 1.2 ? 6 : 10;
 
   return (
     <TouchableOpacity
@@ -50,25 +49,22 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
       style={[
         styles.container,
         {
-          paddingVertical: dynamicVerticalPadding,
-          paddingHorizontal: dynamicHorizontalPadding,
+          padding,
           backgroundColor: disabled ? '#A0A0A0' : getBackgroundColor(),
           transform: [{ translateX: isPressed && !disabled ? 2 : 0 }, { translateY: isPressed && !disabled ? 2 : 0 }],
           shadowOffset: {
-            width: isPressed && !disabled ? 0 : theme.shadows.neoBrutalism.shadowOffset.width,
-            height: isPressed && !disabled ? 0 : theme.shadows.neoBrutalism.shadowOffset.height,
+            width: isPressed && !disabled ? 0 : 2,
+            height: isPressed && !disabled ? 0 : 2,
           },
         },
         style,
       ]}
     >
-      <Text style={[
-        styles.text, 
-        { color: disabled ? '#E0E0E0' : getTextColor() },
-        textStyle
-      ]} numberOfLines={0}>
-        {title}
-      </Text>
+      <Ionicons 
+        name={icon} 
+        size={size} 
+        color={disabled ? '#E0E0E0' : getIconColor()} 
+      />
     </TouchableOpacity>
   );
 };
@@ -80,15 +76,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.borders.radius,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: theme.shadows.neoBrutalism.shadowColor,
-    shadowOpacity: theme.shadows.neoBrutalism.shadowOpacity,
-    shadowRadius: theme.shadows.neoBrutalism.shadowRadius,
-    elevation: theme.shadows.neoBrutalism.elevation,
-    marginVertical: 8,
-  },
-  text: {
-    fontSize: theme.typography.sizes.lg,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    shadowColor: theme.colors.border,
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 2,
   }
 });

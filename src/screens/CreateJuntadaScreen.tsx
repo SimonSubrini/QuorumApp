@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, PixelRatio, Image } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
+import { NeoIconButton } from '../components/NeoIconButton';
 import { NeoInput } from '../components/NeoInput';
 import { supabase } from '../lib/supabase';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export const CreateJuntadaScreen = ({ route, navigation }: any) => {
   const { groupId, groupName } = route.params;
   const [name, setName] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [location, setLocation] = useState('');
+  const [eventDate, setEventDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const fontScale = PixelRatio.getFontScale();
+  const isLargeFont = fontScale > 1.2;
+
   const handleCreate = async () => {
-    if (!name.trim() || !date.trim() || !time.trim()) {
-      Alert.alert('Error', 'Debes completar todos los campos');
+    if (!name.trim() || !location.trim()) {
+      Alert.alert('Error', 'Debes completar el nombre y la ubicación');
       return;
     }
 
@@ -24,18 +32,12 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No estás autenticado');
 
-      // Validar formato básico de fecha (YYYY-MM-DD) y hora (HH:MM)
-      // En una app real usaríamos un DatePicker nativo
-      const eventDate = new Date(`${date}T${time}:00`);
-      if (isNaN(eventDate.getTime())) {
-        throw new Error('Formato de fecha u hora inválido. Usa YYYY-MM-DD y HH:MM');
-      }
-
       const { error } = await supabase
         .from('juntadas')
         .insert({ 
           group_id: groupId, 
-          name: name, 
+          name: name,
+          location: location,
           event_date: eventDate.toISOString(),
           created_by: user.id
         });
@@ -52,15 +54,40 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
     }
   };
 
-  return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        
-        <View style={styles.header}>
-          <Text style={styles.title}>AGENDAR JUNTADA</Text>
-          <Text style={styles.subtitle}>Grupo: {groupName}</Text>
-        </View>
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const currentDate = new Date(eventDate);
+      currentDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+      setEventDate(currentDate);
+    }
+  };
 
+  const onChangeTime = (event: any, selectedDate?: Date) => {
+    setShowTimePicker(false);
+    if (selectedDate) {
+      const currentDate = new Date(eventDate);
+      currentDate.setHours(selectedDate.getHours(), selectedDate.getMinutes());
+      setEventDate(currentDate);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title} numberOfLines={1}>NUEVA JUNTADA</Text>
+            <Text style={styles.subtitle} numberOfLines={1}>Grupo: {groupName}</Text>
+          </View>
+        </View>
+        <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
+      </View>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <NeoCard style={styles.card}>
           <Text style={styles.description}>
             Cualquier miembro del grupo puede proponer y crear un evento.
@@ -74,18 +101,49 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
           />
 
           <NeoInput
-            label="Fecha (YYYY-MM-DD)"
-            placeholder="Ej: 2026-12-31"
-            value={date}
-            onChangeText={setDate}
+            label="Ubicación"
+            placeholder="Ej: Casa de Simón"
+            value={location}
+            onChangeText={setLocation}
           />
 
-          <NeoInput
-            label="Hora (HH:MM)"
-            placeholder="Ej: 21:30"
-            value={time}
-            onChangeText={setTime}
-          />
+          <View style={styles.spacer} />
+
+          <Text style={styles.label}>Fecha y Hora</Text>
+          <View style={{flexDirection: isLargeFont ? 'column' : 'row', gap: 8, marginBottom: 8}}>
+            <View style={{flex: 1}}>
+              <NeoButton 
+                title={eventDate.toLocaleDateString()} 
+                onPress={() => setShowDatePicker(true)} 
+                variant="secondary"
+              />
+            </View>
+            <View style={{flex: 1}}>
+              <NeoButton 
+                title={eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} 
+                onPress={() => setShowTimePicker(true)} 
+                variant="secondary"
+              />
+            </View>
+          </View>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={eventDate}
+              mode="date"
+              display="default"
+              onChange={onChangeDate}
+            />
+          )}
+
+          {showTimePicker && (
+            <DateTimePicker
+              value={eventDate}
+              mode="time"
+              display="default"
+              onChange={onChangeTime}
+            />
+          )}
           
           <View style={styles.spacer} />
           
@@ -117,8 +175,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
+    padding: 20,
+    paddingTop: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 40,
+    borderBottomWidth: 4,
+    borderBottomColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
   },
   title: {
     fontSize: 28,
@@ -138,6 +213,14 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginBottom: 20,
     fontWeight: 'bold',
+  },
+  label: {
+    fontSize: theme.typography.sizes.md,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+    marginBottom: 8,
+    marginTop: 8,
+    textTransform: 'uppercase',
   },
   card: {
     padding: 24,

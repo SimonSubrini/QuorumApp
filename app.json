@@ -28,7 +28,8 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends.",
           "cameraPermission": "Quorum necesita acceder a tu cámara para validar la asistencia a la juntada mediante una foto grupal."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ]
   }
 }

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoInput } from '../components/NeoInput';
+import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
 
 export const CreateGroupScreen = ({ navigation }: any) => {
@@ -49,13 +50,19 @@ export const CreateGroupScreen = ({ navigation }: any) => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        
-        <View style={styles.header}>
-          <Text style={styles.title}>NUEVO GRUPO</Text>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+          <Text style={styles.title} numberOfLines={1}>CREAR GRUPO</Text>
         </View>
+        <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
+      </View>
 
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <NeoCard style={styles.card}>
           <Text style={styles.description}>
             Crea un nuevo grupo para ti y tus amigos. Eres el Administrador.
@@ -98,8 +105,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
+    padding: 20,
+    paddingTop: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 40,
+    borderBottomWidth: 4,
+    borderBottomColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
   },
   title: {
     fontSize: 36,

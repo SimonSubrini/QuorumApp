@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
+import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -55,12 +56,18 @@ export const DashboardScreen = ({ navigation }: any) => {
     }
   };
 
+  const fontScale = PixelRatio.getFontScale();
+  const isLargeFont = fontScale > 1.2;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>TUS GRUPOS</Text>
-        <NeoButton
-          title="Salir"
+        <View style={styles.headerLeft}>
+          <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+          <Text style={styles.title}>TUS GRUPOS</Text>
+        </View>
+        <NeoIconButton
+          icon="log-out-outline"
           onPress={handleLogout}
           variant="secondary"
         />
@@ -95,12 +102,12 @@ export const DashboardScreen = ({ navigation }: any) => {
         </ScrollView>
       )}
 
-      <View style={styles.footer}>
-        <View style={styles.buttonRow}>
-          <View style={{ flex: 1, marginRight: 8 }}>
+      <View style={[styles.footer, isLargeFont && { paddingBottom: 40 }]}>
+        <View style={[styles.buttonRow, { flexDirection: isLargeFont ? 'column' : 'row', gap: isLargeFont ? 8 : 0 }]}>
+          <View style={{ flex: isLargeFont ? 0 : 1, marginRight: isLargeFont ? 0 : 8 }}>
             <NeoButton title="CREAR" onPress={() => navigation.navigate('CreateGroup')} />
           </View>
-          <View style={{ flex: 1, marginLeft: 8 }}>
+          <View style={{ flex: isLargeFont ? 0 : 1, marginLeft: isLargeFont ? 0 : 8 }}>
             <NeoButton title="UNIRSE" onPress={() => navigation.navigate('JoinGroup')} variant="secondary" />
           </View>
         </View>
@@ -123,6 +130,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 4,
     borderBottomColor: theme.colors.border,
     backgroundColor: theme.colors.background,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
   },
   title: {
     fontSize: 24,

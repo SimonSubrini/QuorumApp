@@ -15,6 +15,7 @@ import { JoinGroupScreen } from './src/screens/JoinGroupScreen';
 import { GroupDetailsScreen } from './src/screens/GroupDetailsScreen';
 import { CreateJuntadaScreen } from './src/screens/CreateJuntadaScreen';
 import { JuntadaDetailsScreen } from './src/screens/JuntadaDetailsScreen';
+import { CreateMatchScreen } from './src/screens/CreateMatchScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +54,7 @@ export default function App() {
               <Stack.Screen name="GroupDetails" component={GroupDetailsScreen} />
               <Stack.Screen name="CreateJuntada" component={CreateJuntadaScreen} />
               <Stack.Screen name="JuntadaDetails" component={JuntadaDetailsScreen} />
+              <Stack.Screen name="CreateMatch" component={CreateMatchScreen} />
             </>
           ) : (
             <Stack.Screen name="Auth" component={AuthScreen} />

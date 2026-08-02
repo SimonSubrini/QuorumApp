@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
+import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -13,6 +14,9 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'ranking' | 'juntadas'>('ranking');
   const isFocused = useIsFocused();
+
+  const fontScale = PixelRatio.getFontScale();
+  const isLargeFont = fontScale > 1.2;
 
   const fetchData = async () => {
     setLoading(true);
@@ -56,22 +60,25 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>{groupName}</Text>
-          <Text style={styles.subtitle}>ID: {groupId}</Text>
+        <View style={styles.headerLeft}>
+          <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title} numberOfLines={1}>{groupName}</Text>
+            <Text style={styles.subtitle}>ID: {groupId}</Text>
+          </View>
         </View>
-        <NeoButton title="Volver" onPress={() => navigation.goBack()} variant="secondary" />
+        <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
       </View>
 
-      <View style={styles.tabContainer}>
-        <View style={{ flex: 1, marginRight: 4 }}>
+      <View style={[styles.tabContainer, { flexDirection: isLargeFont ? 'column' : 'row', gap: isLargeFont ? 8 : 0 }]}>
+        <View style={{ flex: isLargeFont ? 0 : 1, marginRight: isLargeFont ? 0 : 4 }}>
           <NeoButton 
             title="RANKING" 
             onPress={() => setActiveTab('ranking')} 
             variant={activeTab === 'ranking' ? 'primary' : 'secondary'} 
           />
         </View>
-        <View style={{ flex: 1, marginLeft: 4 }}>
+        <View style={{ flex: isLargeFont ? 0 : 1, marginLeft: isLargeFont ? 0 : 4 }}>
           <NeoButton 
             title="JUNTADAS" 
             onPress={() => setActiveTab('juntadas')} 
@@ -159,6 +166,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 4,
     borderBottomColor: theme.colors.border,
     backgroundColor: theme.colors.background,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
   },
   tabContainer: {
     flexDirection: 'row',

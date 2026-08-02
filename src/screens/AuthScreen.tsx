@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, Image } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoButton } from '../components/NeoButton';
 import { NeoInput } from '../components/NeoInput';
@@ -61,6 +61,7 @@ export const AuthScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         
         <View style={styles.header}>
+          <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>QUÓRUM</Text>
           <Text style={styles.subtitle}>
             {isLogin ? 'Inicia sesión para auditar' : 'Firma tu contrato digital'}
@@ -127,6 +128,11 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 40,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
   },
   title: {
     fontSize: 48,
