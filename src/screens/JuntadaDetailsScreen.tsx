@@ -8,6 +8,8 @@ import { supabase } from '../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { decode } from 'base64-arraybuffer';
 import { useIsFocused } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 
 export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
   const { juntada } = route.params;
@@ -193,9 +195,10 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
           <Text style={styles.sectionTitle}>PARTIDAS JUGADAS</Text>
           {hasCheckedIn && juntadaState !== 'finalizada' && (
             <NeoButton 
-              title="+ REGISTRAR" 
+              title="+" 
               onPress={() => navigation.navigate('CreateMatch', { juntada, attendees })} 
               variant="primary"
+              style={{ paddingHorizontal: 15 }}
             />
           )}
         </View>
@@ -213,6 +216,27 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
             )
           })
         )}
+
+        <View style={styles.spacer} />
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>HERRAMIENTAS</Text>
+        </View>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue=""
+            onValueChange={(itemValue) => {
+              if (itemValue === 'randomizador') navigation.navigate('Randomizador', { juntada });
+              else if (itemValue === 'bets') navigation.navigate('Bets', { juntada });
+              else if (itemValue === 'votes') navigation.navigate('Votes', { juntada });
+            }}
+          >
+            <Picker.Item label="Seleccionar herramienta..." value="" />
+            <Picker.Item label="Randomizador" value="randomizador" />
+            <Picker.Item label="Apuestas" value="bets" />
+            <Picker.Item label="Votaciones" value="votes" />
+          </Picker>
+        </View>
 
         <View style={styles.spacer} />
 
@@ -240,6 +264,7 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
         )}
 
       </ScrollView>
+      <AdBannerPlaceholder />
     </View>
   );
 };
@@ -338,7 +363,15 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: theme.colors.text,
-    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  pickerContainer: {
+    borderWidth: 3,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+    marginBottom: 10
   },
   spacer: {
     height: 24,

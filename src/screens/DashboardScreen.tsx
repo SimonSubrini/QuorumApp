@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image, TouchableOpacity } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -10,6 +10,8 @@ import { useIsFocused } from '@react-navigation/native';
 export const DashboardScreen = ({ navigation }: any) => {
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>('');
   const isFocused = useIsFocused(); // Para recargar cuando volvemos a esta pantalla
 
   const fetchGroups = async () => {
@@ -17,6 +19,18 @@ export const DashboardScreen = ({ navigation }: any) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No estás autenticado');
+
+      // Fetch user profile info
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('avatar_url, username')
+        .eq('id', user.id)
+        .single();
+      
+      if (profile) {
+        setAvatarUrl(profile.avatar_url);
+        setUsername(profile.username || '');
+      }
 
       // Buscar los grupos a los que pertenece el usuario
       const { data, error } = await supabase
@@ -66,11 +80,22 @@ export const DashboardScreen = ({ navigation }: any) => {
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <Text style={styles.title}>TUS GRUPOS</Text>
         </View>
-        <NeoIconButton
-          icon="log-out-outline"
-          onPress={handleLogout}
-          variant="secondary"
-        />
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.avatarButton}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.headerAvatar} />
+            ) : (
+              <View style={styles.headerAvatarPlaceholder}>
+                <Text style={styles.headerAvatarText}>{username.charAt(0).toUpperCase() || 'U'}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <NeoIconButton
+            icon="log-out-outline"
+            onPress={handleLogout}
+            variant="secondary"
+          />
+        </View>
       </View>
 
       {loading ? (
@@ -140,6 +165,32 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     marginRight: 12,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  avatarButton: {
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  headerAvatar: {
+    width: 40,
+    height: 40,
+  },
+  headerAvatarPlaceholder: {
+    width: 40,
+    height: 40,
+    backgroundColor: theme.colors.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerAvatarText: {
+    fontWeight: 'bold',
+    color: theme.colors.text,
   },
   title: {
     fontSize: 24,

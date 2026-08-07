@@ -6,9 +6,11 @@ import { NeoButton } from '../components/NeoButton';
 import { NeoInput } from '../components/NeoInput';
 import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
-
+import { Picker } from '@react-native-picker/picker';
 export const CreateGroupScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
+  const [duration, setDuration] = useState('6_months');
+  const [numWinners, setNumWinners] = useState('1');
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
@@ -24,9 +26,21 @@ export const CreateGroupScreen = ({ navigation }: any) => {
       if (!user) throw new Error('No estás autenticado');
 
       // 1. Crear el grupo
+      const endDate = new Date();
+      if (duration === '1_month') endDate.setMonth(endDate.getMonth() + 1);
+      else if (duration === '6_months') endDate.setMonth(endDate.getMonth() + 6);
+      else if (duration === '1_year') endDate.setFullYear(endDate.getFullYear() + 1);
+
       const { data: group, error: groupError } = await supabase
         .from('groups')
-        .insert({ name: name, admin_id: user.id })
+        .insert({ 
+          name: name, 
+          admin_id: user.id,
+          end_date: endDate.toISOString(),
+          num_winners: parseInt(numWinners, 10),
+          season_number: 1,
+          state: 'activo'
+        })
         .select()
         .single();
 
@@ -74,6 +88,24 @@ export const CreateGroupScreen = ({ navigation }: any) => {
             value={name}
             onChangeText={setName}
           />
+
+          <Text style={styles.label}>Duración de la temporada:</Text>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={duration} onValueChange={setDuration}>
+              <Picker.Item label="1 Mes" value="1_month" />
+              <Picker.Item label="6 Meses" value="6_months" />
+              <Picker.Item label="1 Año" value="1_year" />
+            </Picker>
+          </View>
+
+          <Text style={styles.label}>Cantidad de ganadores:</Text>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={numWinners} onValueChange={setNumWinners}>
+              <Picker.Item label="1 Ganador" value="1" />
+              <Picker.Item label="Top 2" value="2" />
+              <Picker.Item label="Top 3" value="3" />
+            </Picker>
+          </View>
           
           <View style={styles.spacer} />
           
@@ -142,5 +174,17 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 16,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    marginTop: 10,
+  },
+  pickerContainer: {
+    borderWidth: 3,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+    marginBottom: 10,
   }
 });

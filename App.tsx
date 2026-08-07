@@ -16,6 +16,10 @@ import { GroupDetailsScreen } from './src/screens/GroupDetailsScreen';
 import { CreateJuntadaScreen } from './src/screens/CreateJuntadaScreen';
 import { JuntadaDetailsScreen } from './src/screens/JuntadaDetailsScreen';
 import { CreateMatchScreen } from './src/screens/CreateMatchScreen';
+import { RandomizadorScreen } from './src/screens/RandomizadorScreen';
+import { BetsScreen } from './src/screens/BetsScreen';
+import { VotesScreen } from './src/screens/VotesScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,6 +59,10 @@ export default function App() {
               <Stack.Screen name="CreateJuntada" component={CreateJuntadaScreen} />
               <Stack.Screen name="JuntadaDetails" component={JuntadaDetailsScreen} />
               <Stack.Screen name="CreateMatch" component={CreateMatchScreen} />
+              <Stack.Screen name="Randomizador" component={RandomizadorScreen} />
+              <Stack.Screen name="Bets" component={BetsScreen} />
+              <Stack.Screen name="Votes" component={VotesScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} />
             </>
           ) : (
             <Stack.Screen name="Auth" component={AuthScreen} />
