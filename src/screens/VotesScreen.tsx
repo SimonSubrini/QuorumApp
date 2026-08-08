@@ -356,19 +356,14 @@ export const VotesScreen = ({ route, navigation }: any) => {
                   <Text style={styles.label}>Puntos ({voteType === 'acto_extraordinario' ? '+' : '-'}):</Text>
                   <View style={styles.pickerContainer}>
                     <Picker selectedValue={pointsModifier} onValueChange={setPointsModifier}>
-                      {voteType === 'acto_extraordinario' ? (
-                        <>
-                          <Picker.Item label="+1" value="1" />
-                          <Picker.Item label="+2" value="2" />
-                          <Picker.Item label="+3" value="3" />
-                        </>
-                      ) : (
-                        <>
-                          <Picker.Item label="-1" value="-1" />
-                          <Picker.Item label="-2" value="-2" />
-                          <Picker.Item label="-3" value="-3" />
-                        </>
-                      )}
+                      {voteType === 'acto_extraordinario' 
+                        ? [1, 2, 3].map(val => (
+                            <Picker.Item key={val} label={`+${val}`} value={String(val)} />
+                          ))
+                        : [-1, -2, -3].map(val => (
+                            <Picker.Item key={val} label={`${val}`} value={String(val)} />
+                          ))
+                      }
                     </Picker>
                   </View>
 
