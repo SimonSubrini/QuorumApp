@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import { decode } from 'base64-arraybuffer';
 import { useIsFocused } from '@react-navigation/native';
+import { injectMockUsers } from '../utils/mockGenerator';
 import { Picker } from '@react-native-picker/picker';
 import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 
@@ -152,15 +153,12 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
           style: 'destructive',
           onPress: async () => {
             setLoading(true);
-            const { error } = await supabase.rpc('inject_mock_users', {
-              p_group_id: juntada.group_id,
-              p_juntada_id: juntada.id
-            });
-            if (error) {
-              Alert.alert('Error', error.message);
-            } else {
+            try {
+              await injectMockUsers(juntada.group_id, juntada.id);
               Alert.alert('¡Éxito!', 'Bots inyectados. Recargá la página.');
               fetchData();
+            } catch (error: any) {
+              Alert.alert('Error', error.message);
             }
             setLoading(false);
           }

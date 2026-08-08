@@ -82,9 +82,6 @@ export const DashboardScreen = ({ navigation }: any) => {
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <Text style={styles.title}>TUS GRUPOS</Text>
-          <View style={{ marginLeft: 10 }}>
-            <NeoIconButton icon="help" onPress={() => setShowHelp(true)} variant="secondary" />
-          </View>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.avatarButton}>
@@ -96,6 +93,7 @@ export const DashboardScreen = ({ navigation }: any) => {
               </View>
             )}
           </TouchableOpacity>
+          <NeoIconButton icon="help" onPress={() => setShowHelp(true)} variant="secondary" />
           <NeoIconButton
             icon="log-out-outline"
             onPress={handleLogout}
