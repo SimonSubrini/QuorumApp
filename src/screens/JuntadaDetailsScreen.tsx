@@ -57,7 +57,9 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
   }, [isFocused]);
 
   const hasCheckedIn = attendees.some(a => a.user_id === currentUser?.id);
-  const isCreator = currentUser?.id === juntada.created_by;
+  const isCreator = currentUser?.id === (juntada.creator_id || juntada.created_by);
+  const eventDateObj = new Date(juntada.event_date);
+  const todayObj = new Date();
 
   const handleCheckIn = async () => {
     setLoading(true);
@@ -204,12 +206,9 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
     }
   };
 
-  const eventDateObj = new Date(juntada.event_date);
-  const todayObj = new Date();
   const eventLocal = new Date(eventDateObj.getFullYear(), eventDateObj.getMonth(), eventDateObj.getDate());
   const todayLocal = new Date(todayObj.getFullYear(), todayObj.getMonth(), todayObj.getDate());
   const canCheckInDate = todayLocal >= eventLocal;
-  const isCreator = currentUser?.id === juntada.creator_id;
 
   return (
     <View style={styles.container}>
