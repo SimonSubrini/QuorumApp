@@ -59,9 +59,9 @@ export const BetsScreen = ({ route, navigation }: any) => {
       .from('bets')
       .select(`
         *,
-        profiles:creator_id (username),
-        bet_options (*),
-        bet_participants (*, profiles(username))
+        profiles:creator_id (username, is_bot),
+        bet_options!bet_options_bet_id_fkey (*),
+        bet_participants (*, profiles(username, is_bot))
       `)
       .eq('juntada_id', juntada.id)
       .order('created_at', { ascending: false });
@@ -134,11 +134,11 @@ export const BetsScreen = ({ route, navigation }: any) => {
     if (createdOptions && createdOptions.length > 0) {
       const { data: groupMembers } = await supabase
         .from('group_members')
-        .select('*, profiles(username)')
+        .select('*, profiles(username, is_bot)')
         .eq('group_id', juntada.group_id);
 
       if (groupMembers) {
-        const bots = groupMembers.filter((m:any) => m.profiles?.username?.startsWith('Bot '));
+        const bots = groupMembers.filter((m:any) => m.profiles?.is_bot === true);
         if (bots.length > 0) {
           if (newBetIsMulti) {
             for (const bot of bots) {

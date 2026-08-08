@@ -55,7 +55,7 @@ export const VotesScreen = ({ route, navigation }: any) => {
   const fetchMembers = async () => {
     const { data } = await supabase
       .from('group_members')
-      .select('*, profiles(username)')
+      .select('*, profiles(username, is_bot)')
       .eq('group_id', groupId);
     if (data) setMembers(data);
   };
@@ -169,7 +169,7 @@ export const VotesScreen = ({ route, navigation }: any) => {
     setLoading(true);
     const responses = vote.vote_responses;
     const yesCount = responses.filter((r:any) => r.response === true).length;
-    const realMembersCount = members.filter((m:any) => !m.profiles?.username?.startsWith('Bot ')).length;
+    const realMembersCount = members.filter((m:any) => m.profiles?.is_bot !== true).length;
     const totalMembers = realMembersCount > 0 ? realMembersCount : members.length;
     
     const isApproved = isVoteApproved(yesCount, totalMembers);
