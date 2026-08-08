@@ -66,6 +66,10 @@ export const BetsScreen = ({ route, navigation }: any) => {
       .eq('juntada_id', juntada.id)
       .order('created_at', { ascending: false });
 
+    if (error) {
+      Alert.alert('Error fetching bets', error.message);
+    }
+
     if (betsData) {
       setBets(betsData);
       
@@ -120,12 +124,43 @@ export const BetsScreen = ({ route, navigation }: any) => {
     }
 
     // 2. Crear opciones
+    // 2. Crear opciones
     for (const optDesc of validOptions) {
       await supabase.from('bet_options').insert({ bet_id: betData.id, description: optDesc });
     }
 
-    // 3. Unir al creador automáticamente (opcional, pero no elegió opción aún)
-    // Dejamos que el creador elija la opción desde la UI igual que el resto.
+    // Lógica para bots
+    const { data: createdOptions } = await supabase.from('bet_options').select('*').eq('bet_id', betData.id);
+    if (createdOptions && createdOptions.length > 0) {
+      const { data: groupMembers } = await supabase
+        .from('group_members')
+        .select('*, profiles(username)')
+        .eq('group_id', juntada.group_id);
+
+      if (groupMembers) {
+        const bots = groupMembers.filter((m:any) => m.profiles?.username?.startsWith('Bot '));
+        if (bots.length > 0) {
+          if (newBetIsMulti) {
+            for (const bot of bots) {
+              const randomOpt = createdOptions[Math.floor(Math.random() * createdOptions.length)];
+              await supabase.from('bet_participants').insert({
+                bet_id: betData.id,
+                user_id: bot.user_id,
+                option_id: randomOpt.id
+              });
+            }
+          } else {
+            const randomBot = bots[Math.floor(Math.random() * bots.length)];
+            const randomOpt = createdOptions[Math.floor(Math.random() * createdOptions.length)];
+            await supabase.from('bet_participants').insert({
+              bet_id: betData.id,
+              user_id: randomBot.user_id,
+              option_id: randomOpt.id
+            });
+          }
+        }
+      }
+    }
     
     setShowCreateModal(false);
     setNewBetDesc('');
