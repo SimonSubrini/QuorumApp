@@ -339,7 +339,11 @@ export const VotesScreen = ({ route, navigation }: any) => {
               
               <Text style={styles.label}>Tipo de votación:</Text>
               <View style={styles.pickerContainer}>
-                <Picker selectedValue={voteType} onValueChange={(v) => setVoteType(v)}>
+                <Picker selectedValue={voteType} onValueChange={(v) => {
+                  setVoteType(v);
+                  if (v === 'acto_extraordinario') setPointsModifier('1');
+                  else if (v === 'castigo') setPointsModifier('-1');
+                }}>
                   <Picker.Item label="Acto Extraordinario" value="acto_extraordinario" />
                   <Picker.Item label="Castigo" value="castigo" />
                   {juntada && <Picker.Item label="Anular Partida" value="anulacion_juego" />}
