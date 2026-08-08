@@ -169,7 +169,8 @@ export const VotesScreen = ({ route, navigation }: any) => {
     setLoading(true);
     const responses = vote.vote_responses;
     const yesCount = responses.filter((r:any) => r.response === true).length;
-    const totalMembers = members.length;
+    const realMembersCount = members.filter((m:any) => !m.profiles?.username?.startsWith('Bot ')).length;
+    const totalMembers = realMembersCount > 0 ? realMembersCount : members.length;
     
     const isApproved = isVoteApproved(yesCount, totalMembers);
     
