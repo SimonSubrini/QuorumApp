@@ -11,6 +11,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { injectMockUsers } from '../utils/mockGenerator';
 import { Picker } from '@react-native-picker/picker';
 import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
   const { juntada } = route.params;
@@ -20,6 +21,8 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
   const [matches, setMatches] = useState<any[]>([]);
   const [juntadaState, setJuntadaState] = useState(juntada.state);
   const [photoUrl, setPhotoUrl] = useState(juntada.photo_url);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [newDate, setNewDate] = useState(new Date(juntada.event_date));
   const isFocused = useIsFocused();
 
   const fetchData = async () => {
@@ -167,6 +170,47 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
     );
   };
 
+  const handleCancelJuntada = () => {
+    Alert.alert('Confirmar', '¿Estás seguro de anular esta juntada?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Sí, anular', style: 'destructive', onPress: async () => {
+          setLoading(true);
+          const { error } = await supabase.from('juntadas').update({ state: 'cancelada' }).eq('id', juntada.id);
+          if (!error) {
+            setJuntadaState('cancelada');
+            Alert.alert('Juntada anulada');
+          } else {
+            Alert.alert('Error', error.message);
+          }
+          setLoading(false);
+      }}
+    ]);
+  };
+
+  const handleDateChange = async (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setNewDate(selectedDate);
+      setLoading(true);
+      const { error } = await supabase.from('juntadas').update({ event_date: selectedDate.toISOString() }).eq('id', juntada.id);
+      if (!error) {
+        Alert.alert('Juntada postergada', 'Se ha cambiado la fecha de la juntada.');
+        juntada.event_date = selectedDate.toISOString();
+        fetchData(); // refresh to show new date
+      } else {
+        Alert.alert('Error', error.message);
+      }
+      setLoading(false);
+    }
+  };
+
+  const eventDateObj = new Date(juntada.event_date);
+  const todayObj = new Date();
+  const eventLocal = new Date(eventDateObj.getFullYear(), eventDateObj.getMonth(), eventDateObj.getDate());
+  const todayLocal = new Date(todayObj.getFullYear(), todayObj.getMonth(), todayObj.getDate());
+  const canCheckInDate = todayLocal >= eventLocal;
+  const isCreator = currentUser?.id === juntada.creator_id;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -278,11 +322,33 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
           <ActivityIndicator size="large" color={theme.colors.primary} />
         ) : (
           <>
-            {juntadaState !== 'finalizada' && !hasCheckedIn && (
-              <NeoButton title="¡LLEGUÉ! (CHECK-IN)" onPress={handleCheckIn} />
+            {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && !hasCheckedIn && (
+              canCheckInDate ? (
+                <NeoButton title="¡LLEGUÉ! (CHECK-IN)" onPress={handleCheckIn} />
+              ) : (
+                <View style={[styles.statusBadge, { backgroundColor: '#888', marginTop: 10 }]}>
+                  <Text style={styles.statusText}>Check-in deshabilitado (aún no es la fecha)</Text>
+                </View>
+              )
             )}
             
-            {juntadaState !== 'finalizada' && isCreator && (
+            {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && isCreator && attendees.length === 0 && (
+               <View style={{ marginTop: 20, flexDirection: 'row', gap: 10 }}>
+                 <View style={{flex: 1}}><NeoButton title="Postergar" onPress={() => setShowDatePicker(true)} variant="secondary" /></View>
+                 <View style={{flex: 1}}><NeoButton title="Anular" onPress={handleCancelJuntada} variant="secondary" /></View>
+               </View>
+            )}
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={newDate}
+                mode="datetime"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+
+            {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && isCreator && (
                <View style={{ marginTop: 16 }}>
                  <NeoButton 
                    title="TOMAR FOTO GRUPAL" 

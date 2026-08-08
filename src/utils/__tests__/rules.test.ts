@@ -1,4 +1,4 @@
-import { canCreateMatch, getAvailableGames } from '../rules';
+import { canCreateMatch, getAvailableGames, canCheckIn } from '../rules';
 
 describe('Reglas de Juntadas y Partidas', () => {
   describe('canCreateMatch (Mínimo de 3 asistentes)', () => {
@@ -23,6 +23,26 @@ describe('Reglas de Juntadas y Partidas', () => {
     it('debe devolver la lista de juegos si existen', () => {
       const games = ['Metegol', 'UNO', 'Truco'];
       expect(getAvailableGames(games)).toEqual(['Metegol', 'UNO', 'Truco']);
+    });
+  });
+
+  describe('canCheckIn', () => {
+    it('debería permitir check-in si la fecha actual es igual a la planificada', () => {
+      const event = new Date(2025, 0, 15, 20, 0); // 15 Ene 2025 20:00
+      const today = new Date(2025, 0, 15, 8, 0); // 15 Ene 2025 08:00
+      expect(canCheckIn(event, today)).toBe(true);
+    });
+
+    it('debería permitir check-in si la fecha actual es posterior', () => {
+      const event = new Date(2025, 0, 15, 20, 0);
+      const today = new Date(2025, 0, 16, 8, 0);
+      expect(canCheckIn(event, today)).toBe(true);
+    });
+
+    it('NO debería permitir check-in si la fecha actual es anterior', () => {
+      const event = new Date(2025, 0, 15, 20, 0);
+      const today = new Date(2025, 0, 14, 23, 59);
+      expect(canCheckIn(event, today)).toBe(false);
     });
   });
 });
