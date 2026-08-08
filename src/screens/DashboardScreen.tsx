@@ -4,12 +4,15 @@ import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoIconButton } from '../components/NeoIconButton';
+import { HelpModal } from '../components/HelpModal';
 import { supabase } from '../lib/supabase';
 import { useIsFocused } from '@react-navigation/native';
+import { getAvatarSource } from '../utils/avatars';
 
 export const DashboardScreen = ({ navigation }: any) => {
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState<string>('');
   const isFocused = useIsFocused(); // Para recargar cuando volvemos a esta pantalla
@@ -79,11 +82,14 @@ export const DashboardScreen = ({ navigation }: any) => {
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <Text style={styles.title}>TUS GRUPOS</Text>
+          <View style={{ marginLeft: 10 }}>
+            <NeoIconButton icon="help" onPress={() => setShowHelp(true)} variant="secondary" />
+          </View>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.avatarButton}>
             {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.headerAvatar} />
+              <Image source={getAvatarSource(avatarUrl)!} style={styles.headerAvatar} />
             ) : (
               <View style={styles.headerAvatarPlaceholder}>
                 <Text style={styles.headerAvatarText}>{username.charAt(0).toUpperCase() || 'U'}</Text>
@@ -137,6 +143,8 @@ export const DashboardScreen = ({ navigation }: any) => {
           </View>
         </View>
       </View>
+
+      <HelpModal visible={showHelp} onClose={() => setShowHelp(false)} />
     </View>
   );
 };

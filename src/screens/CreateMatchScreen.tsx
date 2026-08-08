@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { theme } from '../styles/theme';
@@ -15,6 +15,25 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [selectedWinners, setSelectedWinners] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [groupGames, setGroupGames] = useState<string[]>([]);
+  const [isNewGame, setIsNewGame] = useState(true);
+
+  useEffect(() => {
+    const fetchGroupGames = async () => {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('games_played')
+        .eq('id', juntada.group_id)
+        .single();
+      
+      if (data && data.games_played && data.games_played.length > 0) {
+        setGroupGames(data.games_played);
+        setGameName(data.games_played[0]);
+        setIsNewGame(false);
+      }
+    };
+    fetchGroupGames();
+  }, [juntada.group_id]);
 
   const togglePlayer = (userId: string) => {
     if (selectedPlayers.includes(userId)) {
@@ -58,14 +77,23 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
       if (existingGames && existingGames.length > 0) {
         gameId = existingGames[0].id;
       } else {
-        const { data: newGame, error: createGameError } = await supabase
+        const { data: newGame, error: insertGameError } = await supabase
           .from('games')
           .insert({ name: gameName.trim(), mode })
           .select('id')
           .single();
           
-        if (createGameError) throw createGameError;
+        if (insertGameError) throw insertGameError;
         gameId = newGame.id;
+        
+        // Agregar al array games_played si es nuevo
+        if (isNewGame) {
+          const updatedGames = [...groupGames, gameName.trim()];
+          await supabase
+            .from('groups')
+            .update({ games_played: updatedGames })
+            .eq('id', juntada.group_id);
+        }
       }
 
       // 2. Crear Partida
@@ -139,14 +167,41 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
         </View>
 
         <NeoCard style={styles.card}>
-          <NeoInput
-            label="Juego"
-            placeholder="Ej: Metegol, UNO, FIFA..."
-            value={gameName}
-            onChangeText={setGameName}
-          />
+          <Text style={styles.label}>Juego</Text>
+          {isNewGame ? (
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+              <View style={{ flex: 1 }}>
+                <NeoInput
+                  placeholder="Ej: Metegol, UNO, FIFA..."
+                  value={gameName}
+                  onChangeText={setGameName}
+                />
+              </View>
+              {groupGames.length > 0 && (
+                <NeoIconButton icon="close" onPress={() => setIsNewGame(false)} variant="secondary" />
+              )}
+            </View>
+          ) : (
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+              <View style={[styles.pickerContainer, { flex: 1 }]}>
+                <Picker
+                  selectedValue={gameName}
+                  onValueChange={(itemValue) => setGameName(itemValue)}
+                  style={styles.picker}
+                >
+                  {groupGames.map((g, i) => (
+                    <Picker.Item key={i} label={g} value={g} />
+                  ))}
+                </Picker>
+              </View>
+              <NeoButton title="+" onPress={() => {
+                setGameName('');
+                setIsNewGame(true);
+              }} />
+            </View>
+          )}
 
-          <Text style={styles.label}>Modalidad</Text>
+          <Text style={[styles.label, { marginTop: 15 }]}>Modalidad</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={mode}

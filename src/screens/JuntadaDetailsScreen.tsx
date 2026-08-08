@@ -141,11 +141,41 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const handleInjectMocks = async () => {
+    Alert.alert(
+      'Mocks',
+      '¿Deseás inyectar 5 bots a esta juntada?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Sí, Inyectar', 
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            const { error } = await supabase.rpc('inject_mock_users', {
+              p_group_id: juntada.group_id,
+              p_juntada_id: juntada.id
+            });
+            if (error) {
+              Alert.alert('Error', error.message);
+            } else {
+              Alert.alert('¡Éxito!', 'Bots inyectados. Recargá la página.');
+              fetchData();
+            }
+            setLoading(false);
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+          <TouchableOpacity onLongPress={handleInjectMocks} delayLongPress={2000}>
+            <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+          </TouchableOpacity>
           <Text style={styles.title} numberOfLines={1}>{juntada.name}</Text>
         </View>
         <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
@@ -196,7 +226,13 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
           {hasCheckedIn && juntadaState !== 'finalizada' && (
             <NeoButton 
               title="+" 
-              onPress={() => navigation.navigate('CreateMatch', { juntada, attendees })} 
+              onPress={() => {
+                if (attendees.length < 3) {
+                  Alert.alert('Faltan Jugadores', 'Se requieren al menos 3 personas con check-in para registrar partidas.');
+                } else {
+                  navigation.navigate('CreateMatch', { juntada, attendees });
+                }
+              }}
               variant="primary"
               style={{ paddingHorizontal: 15 }}
             />

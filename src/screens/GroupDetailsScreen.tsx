@@ -6,6 +6,7 @@ import { NeoButton } from '../components/NeoButton';
 import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
 import { useIsFocused } from '@react-navigation/native';
+import { getAvatarSource } from '../utils/avatars';
 
 export const GroupDetailsScreen = ({ route, navigation }: any) => {
   const { groupId, groupName } = route.params;
@@ -235,7 +236,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                           <View style={[styles.podiumItem, styles.podiumSecond]}>
                             <View style={[styles.podiumAvatarContainer, { width: 50, height: 50 }]}>
                               {members[1].profiles?.avatar_url ? (
-                                <Image source={{ uri: members[1].profiles.avatar_url }} style={styles.podiumAvatar} />
+                                <Image source={getAvatarSource(members[1].profiles.avatar_url)!} style={styles.podiumAvatar} />
                               ) : (
                                 <Text style={styles.podiumAvatarFallback}>{members[1].profiles?.username?.charAt(0).toUpperCase()}</Text>
                               )}
@@ -252,7 +253,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                           <View style={[styles.podiumItem, styles.podiumFirst]}>
                             <View style={[styles.podiumAvatarContainer, { width: 70, height: 70 }]}>
                               {members[0].profiles?.avatar_url ? (
-                                <Image source={{ uri: members[0].profiles.avatar_url }} style={styles.podiumAvatar} />
+                                <Image source={getAvatarSource(members[0].profiles.avatar_url)!} style={styles.podiumAvatar} />
                               ) : (
                                 <Text style={styles.podiumAvatarFallback}>{members[0].profiles?.username?.charAt(0).toUpperCase()}</Text>
                               )}
@@ -269,7 +270,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                           <View style={[styles.podiumItem, styles.podiumThird]}>
                             <View style={[styles.podiumAvatarContainer, { width: 50, height: 50 }]}>
                               {members[2].profiles?.avatar_url ? (
-                                <Image source={{ uri: members[2].profiles.avatar_url }} style={styles.podiumAvatar} />
+                                <Image source={getAvatarSource(members[2].profiles.avatar_url)!} style={styles.podiumAvatar} />
                               ) : (
                                 <Text style={styles.podiumAvatarFallback}>{members[2].profiles?.username?.charAt(0).toUpperCase()}</Text>
                               )}
@@ -290,7 +291,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                           <Text style={styles.rank}>#{index + 4}</Text>
                           <View style={styles.listAvatarContainer}>
                             {member.profiles?.avatar_url ? (
-                              <Image source={{ uri: member.profiles.avatar_url }} style={styles.listAvatar} />
+                              <Image source={getAvatarSource(member.profiles.avatar_url)!} style={styles.listAvatar} />
                             ) : (
                               <Text style={styles.listAvatarFallback}>{member.profiles?.username?.charAt(0).toUpperCase()}</Text>
                             )}
