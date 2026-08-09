@@ -85,7 +85,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
           winners_data: topWinners
         })
         .eq('id', groupId);
-      
+
       if (error) throw error;
       await fetchData();
     } catch (e: any) {
@@ -101,11 +101,11 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
       // Crear nuevo grupo
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + 6); // default 6 months
-      
+
       const { data: newGroup, error: groupError } = await supabase
         .from('groups')
-        .insert({ 
-          name: group.name, 
+        .insert({
+          name: group.name,
           admin_id: group.admin_id,
           end_date: endDate.toISOString(),
           num_winners: group.num_winners,
@@ -114,7 +114,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
         })
         .select()
         .single();
-      
+
       if (groupError) throw groupError;
 
       const newMembers = members.map(m => ({
@@ -122,7 +122,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
         user_id: m.user_id,
         points: 0
       }));
-      
+
       const { error: insertError } = await supabase.from('group_members').insert(newMembers);
       if (insertError) throw insertError;
 
@@ -170,11 +170,11 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <NeoIconButton 
-            icon="log-out-outline" 
-            onPress={handleLeaveGroup} 
-            variant="secondary" 
-            style={{ marginRight: 12, padding: 8, height: 40, width: 40 }} 
+          <NeoIconButton
+            icon="log-out-outline"
+            onPress={handleLeaveGroup}
+            variant="secondary"
+            style={{ marginRight: 12 }}
           />
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
@@ -193,23 +193,23 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
       <View style={{ padding: 20, paddingBottom: 0 }}>
         <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: isLargeFont ? 8 : 8, marginBottom: 8 }}>
           <View style={{ flex: 1 }}>
-            <NeoButton 
-              title={group?.state === 'finalizado' ? 'CEREMONIA' : 'RANKING'} 
-              onPress={() => setActiveTab('ranking')} 
-              variant={activeTab === 'ranking' ? 'primary' : 'secondary'} 
+            <NeoButton
+              title={group?.state === 'finalizado' ? 'CEREMONIA' : 'RANKING'}
+              onPress={() => setActiveTab('ranking')}
+              variant={activeTab === 'ranking' ? 'primary' : 'secondary'}
             />
           </View>
           <View style={{ flex: 1 }}>
-            <NeoButton 
-              title="JUNTADAS" 
-              onPress={() => setActiveTab('juntadas')} 
-              variant={activeTab === 'juntadas' ? 'primary' : 'secondary'} 
+            <NeoButton
+              title="JUNTADAS"
+              onPress={() => setActiveTab('juntadas')}
+              variant={activeTab === 'juntadas' ? 'primary' : 'secondary'}
             />
           </View>
         </View>
-        <NeoButton 
-          title="VOTACIONES" 
-          onPress={() => navigation.navigate('Votes', { group: { id: groupId, name: groupName } })} 
+        <NeoButton
+          title="VOTACIONES"
+          onPress={() => navigation.navigate('Votes', { group: { id: groupId, name: groupName } })}
           variant="secondary"
         />
       </View>
@@ -218,7 +218,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
         <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 50 }} />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          
+
           {activeTab === 'ranking' ? (
             <>
               {group?.state === 'finalizado' ? (
@@ -239,11 +239,11 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                       </View>
                     </NeoCard>
                   ))}
-                  
+
                   {isAdmin && (
-                    <NeoButton 
-                      title="Iniciar Nueva Temporada" 
-                      onPress={handleNewSeason} 
+                    <NeoButton
+                      title="Iniciar Nueva Temporada"
+                      onPress={handleNewSeason}
                       style={{ marginTop: 20, width: '100%' }}
                     />
                   )}
@@ -321,25 +321,25 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
 
                       {/* RESTO DE LA LISTA */}
                       {members.slice(3).map((member, index) => (
-                      <NeoCard key={index} style={styles.memberCard}>
-                        <View style={styles.memberInfo}>
-                          <Text style={styles.rank}>#{index + 4}</Text>
-                          <View style={styles.listAvatarContainer}>
-                            {member.profiles?.avatar_url ? (
-                              <Image source={getAvatarSource(member.profiles.avatar_url)!} style={styles.listAvatar} />
-                            ) : (
-                              <Text style={styles.listAvatarFallback}>{member.profiles?.username?.charAt(0).toUpperCase()}</Text>
-                            )}
+                        <NeoCard key={index} style={styles.memberCard}>
+                          <View style={styles.memberInfo}>
+                            <Text style={styles.rank}>#{index + 4}</Text>
+                            <View style={styles.listAvatarContainer}>
+                              {member.profiles?.avatar_url ? (
+                                <Image source={getAvatarSource(member.profiles.avatar_url)!} style={styles.listAvatar} />
+                              ) : (
+                                <Text style={styles.listAvatarFallback}>{member.profiles?.username?.charAt(0).toUpperCase()}</Text>
+                              )}
+                            </View>
+                            <Text style={styles.username}>
+                              {member.profiles?.username || 'Usuario Desconocido'}
+                              {member.user_id === group?.admin_id ? ' ⭐' : ''}
+                            </Text>
                           </View>
-                          <Text style={styles.username}>
-                            {member.profiles?.username || 'Usuario Desconocido'}
-                            {member.user_id === group?.admin_id ? ' ⭐' : ''}
-                          </Text>
-                        </View>
-                        <View style={styles.pointsBadge}>
-                          <Text style={styles.pointsText}>{member.points} pts</Text>
-                        </View>
-                      </NeoCard>
+                          <View style={styles.pointsBadge}>
+                            <Text style={styles.pointsText}>{member.points} pts</Text>
+                          </View>
+                        </NeoCard>
                       ))}
                     </View>
                   )}
@@ -349,13 +349,13 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
           ) : (
             <>
               {(!isEnded && group?.state !== 'finalizado') && (
-                <NeoButton 
-                  title="+ NUEVA JUNTADA" 
-                  onPress={() => navigation.navigate('CreateJuntada', { groupId, groupName })} 
+                <NeoButton
+                  title="+ NUEVA JUNTADA"
+                  onPress={() => navigation.navigate('CreateJuntada', { groupId, groupName })}
                 />
               )}
               <View style={styles.spacer} />
-              
+
               {juntadas.length === 0 ? (
                 <Text style={styles.emptyText}>Aún no hay juntadas planeadas.</Text>
               ) : (
@@ -371,9 +371,9 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                       {new Date(juntada.event_date).toLocaleString()}
                     </Text>
                     <View style={styles.spacer} />
-                    <NeoButton 
-                      title="Ver Detalles" 
-                      onPress={() => navigation.navigate('JuntadaDetails', { juntada })} 
+                    <NeoButton
+                      title="Ver Detalles"
+                      onPress={() => navigation.navigate('JuntadaDetails', { juntada })}
                       variant="secondary"
                     />
                   </NeoCard>
