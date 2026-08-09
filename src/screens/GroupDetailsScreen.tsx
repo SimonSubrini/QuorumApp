@@ -134,6 +134,35 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const handleLeaveGroup = () => {
+    Alert.alert(
+      'Abandonar Grupo',
+      '¿Estás seguro que deseas abandonar el grupo? Perderás todos tus puntos y ya no tendrás acceso al mismo.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Abandonar',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const { error } = await supabase
+                .from('group_members')
+                .delete()
+                .eq('group_id', groupId)
+                .eq('user_id', currentUser.id);
+              if (error) throw error;
+              navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+            } catch (e: any) {
+              Alert.alert('Error', e.message);
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const isEnded = group?.end_date && new Date(group.end_date) < new Date();
   const isAdmin = currentUser?.id === group?.admin_id;
 
@@ -172,11 +201,22 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
             />
           </View>
         </View>
-        <NeoButton 
-          title="VOTACIONES" 
-          onPress={() => navigation.navigate('Votes', { group: { id: groupId, name: groupName } })} 
-          variant="secondary"
-        />
+        <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 8 }}>
+          <View style={{ flex: 1 }}>
+            <NeoButton 
+              title="VOTACIONES" 
+              onPress={() => navigation.navigate('Votes', { group: { id: groupId, name: groupName } })} 
+              variant="secondary"
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <NeoButton 
+              title="SALIR DEL GRUPO" 
+              onPress={handleLeaveGroup} 
+              variant="secondary"
+            />
+          </View>
+        </View>
       </View>
 
       {loading ? (
