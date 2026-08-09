@@ -170,6 +170,12 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
+          <NeoIconButton 
+            icon="log-out-outline" 
+            onPress={handleLeaveGroup} 
+            variant="secondary" 
+            style={{ marginRight: 12, padding: 8, height: 40, width: 40 }} 
+          />
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
             <Text style={styles.title} numberOfLines={1}>{groupName} {group?.season_number ? `(S${group.season_number})` : ''}</Text>
@@ -201,22 +207,11 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
             />
           </View>
         </View>
-        <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 8 }}>
-          <View style={{ flex: 1 }}>
-            <NeoButton 
-              title="VOTACIONES" 
-              onPress={() => navigation.navigate('Votes', { group: { id: groupId, name: groupName } })} 
-              variant="secondary"
-            />
-          </View>
-          <View style={{ flex: 1 }}>
-            <NeoButton 
-              title="SALIR DEL GRUPO" 
-              onPress={handleLeaveGroup} 
-              variant="secondary"
-            />
-          </View>
-        </View>
+        <NeoButton 
+          title="VOTACIONES" 
+          onPress={() => navigation.navigate('Votes', { group: { id: groupId, name: groupName } })} 
+          variant="secondary"
+        />
       </View>
 
       {loading ? (
