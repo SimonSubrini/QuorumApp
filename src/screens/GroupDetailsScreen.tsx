@@ -152,7 +152,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                 .eq('group_id', groupId)
                 .eq('user_id', currentUser.id);
               if (error) throw error;
-              navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+              navigation.reset({ index: 0, routes: [{ name: 'Dashboard' }] });
             } catch (e: any) {
               Alert.alert('Error', e.message);
               setLoading(false);
@@ -178,7 +178,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
           />
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.title} numberOfLines={1}>{groupName} {group?.season_number ? `(S${group.season_number})` : ''}</Text>
+            <Text style={styles.title}>{groupName} {group?.season_number ? `(S${group.season_number})` : ''}</Text>
             <Text style={styles.subtitle}>ID: {groupId}</Text>
             {group?.end_date && (
               <Text style={styles.dateText}>
