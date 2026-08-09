@@ -144,6 +144,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
           text: 'Abandonar',
           style: 'destructive',
           onPress: async () => {
+            if (!currentUser) return;
             setLoading(true);
             try {
               const { error } = await supabase

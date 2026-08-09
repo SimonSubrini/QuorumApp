@@ -47,10 +47,12 @@ export const DashboardScreen = ({ navigation }: any) => {
       if (error) throw error;
 
       // Mapear la respuesta ignorando los tipos estrictos de Supabase para joins
-      const formattedGroups = data?.map((item: any) => ({
-        id: item.groups?.id,
-        name: item.groups?.name,
-      })) || [];
+      const formattedGroups = data
+        ?.filter((item: any) => item.groups != null)
+        .map((item: any) => ({
+          id: item.groups.id,
+          name: item.groups.name,
+        })) || [];
 
       setGroups(formattedGroups);
     } catch (error: any) {
