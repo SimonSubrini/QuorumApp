@@ -278,7 +278,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                               )}
                             </View>
                             <Text style={styles.podiumName} numberOfLines={1}>{members[1].profiles?.username}</Text>
-                            <View style={[styles.podiumBase, { height: 85, backgroundColor: '#C0C0C0' }]}>
+                            <View style={[styles.podiumBase, { height: 100, backgroundColor: '#C0C0C0' }]}>
                               <Text style={styles.podiumRankText}>2</Text>
                               <Text style={styles.podiumPointsText}>{members[1].points} pts</Text>
                             </View>
@@ -295,7 +295,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                               )}
                             </View>
                             <Text style={styles.podiumName} numberOfLines={1}>{members[0].profiles?.username}</Text>
-                            <View style={[styles.podiumBase, { height: 110, backgroundColor: '#FFD700' }]}>
+                            <View style={[styles.podiumBase, { height: 140, backgroundColor: '#FFD700' }]}>
                               <Text style={styles.podiumRankText}>1</Text>
                               <Text style={styles.podiumPointsText}>{members[0].points} pts</Text>
                             </View>
@@ -312,7 +312,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
                               )}
                             </View>
                             <Text style={styles.podiumName} numberOfLines={1}>{members[2].profiles?.username}</Text>
-                            <View style={[styles.podiumBase, { height: 65, backgroundColor: '#CD7F32' }]}>
+                            <View style={[styles.podiumBase, { height: 75, backgroundColor: '#CD7F32' }]}>
                               <Text style={styles.podiumRankText}>3</Text>
                               <Text style={styles.podiumPointsText}>{members[2].points} pts</Text>
                             </View>
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginBottom: 30,
     marginTop: 20,
-    height: 180,
+    height: 250,
   },
   podiumItem: {
     alignItems: 'center',
