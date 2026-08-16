@@ -343,8 +343,8 @@ export const VotesScreen = ({ route, navigation }: any) => {
             ) : !hasVoted ? (
               <View style={styles.voteActions}>
                 <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 10, marginTop: 10 }}>
-                  <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="VOTAR SÍ" onPress={() => castVote(vote.id, true)} style={{height: '100%'}} /></View>
-                  <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="VOTAR NO" onPress={() => castVote(vote.id, false)} variant="secondary" style={{height: '100%'}} /></View>
+                  <NeoButton title="VOTAR SÍ" onPress={() => castVote(vote.id, true)} style={{ flex: isLargeFont ? 0 : 1 }} />
+                  <NeoButton title="VOTAR NO" onPress={() => castVote(vote.id, false)} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />
                 </View>
               </View>
             ) : (

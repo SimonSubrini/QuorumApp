@@ -370,8 +370,8 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
             
             {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && isCreator && attendees.length === 0 && (
                <View style={{ marginTop: 20, flexDirection: isLargeFont ? 'column' : 'row', gap: 10 }}>
-                 <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Postergar" onPress={() => setShowDatePicker(true)} variant="secondary" style={{height: '100%'}} /></View>
-                 <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Anular" onPress={handleCancelJuntada} variant="secondary" style={{height: '100%'}} /></View>
+                 <NeoButton title="Postergar" onPress={() => setShowDatePicker(true)} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />
+                 <NeoButton title="Anular" onPress={handleCancelJuntada} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />
                </View>
             )}
 

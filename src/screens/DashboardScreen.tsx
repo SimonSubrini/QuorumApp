@@ -141,12 +141,8 @@ export const DashboardScreen = ({ navigation }: any) => {
 
       <View style={[styles.footer, isLargeFont && { paddingBottom: 40 }]}>
         <View style={[styles.buttonRow, { flexDirection: isLargeFont ? 'column' : 'row', gap: 8 }]}>
-          <View style={{ flex: isLargeFont ? 0 : 1 }}>
-            <NeoButton title="CREAR" onPress={() => navigation.navigate('CreateGroup')} style={{ height: '100%' }} />
-          </View>
-          <View style={{ flex: isLargeFont ? 0 : 1 }}>
-            <NeoButton title="UNIRSE" onPress={() => navigation.navigate('JoinGroup')} variant="secondary" style={{ height: '100%' }} />
-          </View>
+          <NeoButton title="CREAR" onPress={() => navigation.navigate('CreateGroup')} style={{ flex: isLargeFont ? 0 : 1 }} />
+          <NeoButton title="UNIRSE" onPress={() => navigation.navigate('JoinGroup')} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />
         </View>
       </View>
 

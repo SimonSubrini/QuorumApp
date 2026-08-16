@@ -193,22 +193,18 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
 
       <View style={{ padding: 20, paddingBottom: 0, gap: 8 }}>
         <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 8 }}>
-          <View style={{ flex: isLargeFont ? 0 : 1 }}>
-            <NeoButton
-              title={group?.state === 'finalizado' ? 'CEREMONIA' : 'RANKING'}
-              onPress={() => setActiveTab('ranking')}
-              variant={activeTab === 'ranking' ? 'primary' : 'secondary'}
-              style={{ height: '100%' }}
-            />
-          </View>
-          <View style={{ flex: isLargeFont ? 0 : 1 }}>
-            <NeoButton
-              title="JUNTADAS"
-              onPress={() => setActiveTab('juntadas')}
-              variant={activeTab === 'juntadas' ? 'primary' : 'secondary'}
-              style={{ height: '100%' }}
-            />
-          </View>
+          <NeoButton
+            title={group?.state === 'finalizado' ? 'CEREMONIA' : 'RANKING'}
+            onPress={() => setActiveTab('ranking')}
+            variant={activeTab === 'ranking' ? 'primary' : 'secondary'}
+            style={{ flex: isLargeFont ? 0 : 1 }}
+          />
+          <NeoButton
+            title="JUNTADAS"
+            onPress={() => setActiveTab('juntadas')}
+            variant={activeTab === 'juntadas' ? 'primary' : 'secondary'}
+            style={{ flex: isLargeFont ? 0 : 1 }}
+          />
         </View>
         <NeoButton
           title="VOTACIONES"

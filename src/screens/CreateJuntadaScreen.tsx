@@ -136,22 +136,18 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
 
           <Text style={styles.label}>Fecha y Hora</Text>
           <View style={{flexDirection: isLargeFont ? 'column' : 'row', gap: 8, marginBottom: 8}}>
-            <View style={{flex: isLargeFont ? 0 : 1}}>
-              <NeoButton 
-                title={eventDate.toLocaleDateString()} 
-                onPress={() => setShowDatePicker(true)} 
-                variant="secondary"
-                style={{ height: '100%' }}
-              />
-            </View>
-            <View style={{flex: isLargeFont ? 0 : 1}}>
-              <NeoButton 
-                title={eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} 
-                onPress={() => setShowTimePicker(true)} 
-                variant="secondary"
-                style={{ height: '100%' }}
-              />
-            </View>
+            <NeoButton 
+              title={eventDate.toLocaleDateString()} 
+              onPress={() => setShowDatePicker(true)} 
+              variant="secondary"
+              style={{ flex: isLargeFont ? 0 : 1 }}
+            />
+            <NeoButton 
+              title={eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} 
+              onPress={() => setShowTimePicker(true)} 
+              variant="secondary"
+              style={{ flex: isLargeFont ? 0 : 1 }}
+            />
           </View>
 
           {showDatePicker && (
