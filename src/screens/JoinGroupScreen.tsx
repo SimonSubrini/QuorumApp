@@ -7,8 +7,8 @@ import { NeoInput } from '../components/NeoInput';
 import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
 
-export const JoinGroupScreen = ({ navigation }: any) => {
-  const [groupId, setGroupId] = useState('');
+export const JoinGroupScreen = ({ route, navigation }: any) => {
+  const [groupId, setGroupId] = useState(route?.params?.groupId || '');
   const [loading, setLoading] = useState(false);
 
   const handleJoin = async () => {

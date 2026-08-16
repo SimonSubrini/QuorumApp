@@ -4,6 +4,7 @@ import { StyleSheet, SafeAreaView, View, Text, ActivityIndicator } from 'react-n
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Session } from '@supabase/supabase-js';
+import * as Linking from 'expo-linking';
 
 import { theme } from './src/styles/theme';
 import { supabase } from './src/lib/supabase';
@@ -46,8 +47,17 @@ export default function App() {
     );
   }
 
+  const linking = {
+    prefixes: [Linking.createURL('/'), 'quorumapp://'],
+    config: {
+      screens: {
+        JoinGroup: 'join/:groupId',
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <SafeAreaView style={styles.container}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {session ? (

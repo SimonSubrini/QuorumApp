@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image, Share } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -164,6 +164,17 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
     );
   };
 
+  const handleShare = async () => {
+    try {
+      const shareUrl = `quorumapp://join/${groupId}`;
+      await Share.share({
+        message: `¡Unite a mi grupo en QuorumApp!\nUsá este código de invitación: ${groupId}\nO hacé clic acá: ${shareUrl}`,
+      });
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
   const isEnded = group?.end_date && new Date(group.end_date) < new Date();
   const isAdmin = currentUser?.id === group?.admin_id;
 
@@ -188,7 +199,10 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
             )}
           </View>
         </View>
-        <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <NeoIconButton icon="share-social" onPress={handleShare} variant="secondary" />
+          <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
+        </View>
       </View>
 
       <View style={{ padding: 20, paddingBottom: 0, gap: 8 }}>
