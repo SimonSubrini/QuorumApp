@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextInput, StyleSheet, View, Text, TextInputProps, ViewStyle, TouchableOpacity } from 'react-native';
+import { TextInput, StyleSheet, View, Text, TextInputProps, ViewStyle, TouchableOpacity, PixelRatio } from 'react-native';
 import { theme } from '../styles/theme';
 
 interface NeoInputProps extends TextInputProps {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   },
   input: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: PixelRatio.getFontScale() > 1.2 ? 8 : 14,
     fontSize: theme.typography.sizes.md,
     color: theme.colors.text,
   },

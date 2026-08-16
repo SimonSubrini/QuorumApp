@@ -161,7 +161,7 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
-            <Text style={styles.title} numberOfLines={1}>REGISTRAR PARTIDA</Text>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>REGISTRAR PARTIDA</Text>
           </View>
           <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
         </View>
@@ -187,7 +187,6 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
                 <Picker
                   selectedValue={gameName}
                   onValueChange={(itemValue) => setGameName(itemValue)}
-                  style={styles.picker}
                 >
                   {groupGames.map((g, i) => (
                     <Picker.Item key={i} label={g} value={g} />
@@ -206,7 +205,6 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
             <Picker
               selectedValue={mode}
               onValueChange={(itemValue) => setMode(itemValue as any)}
-              style={styles.picker}
             >
               <Picker.Item label="Estándar" value="estandar" />
               <Picker.Item label="Torneo" value="torneo" />
@@ -337,10 +335,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     marginBottom: 8,
   },
-  picker: {
-    width: '100%',
-    height: 50,
-  },
+
   helperText: {
     fontSize: 12,
     color: theme.colors.text,
