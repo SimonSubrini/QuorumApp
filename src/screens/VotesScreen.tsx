@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Alert, Modal, KeyboardAvoidingView,
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { NeoInput } from '../components/NeoInput';
+import { HelpModal } from '../components/HelpModal';
 import { supabase } from '../lib/supabase';
+import { sendPushNotifications } from '../utils/notifications';
+import { NeoInput } from '../components/NeoInput';
 import { Picker } from '@react-native-picker/picker';
 import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 import { isVoteApproved } from '../utils/votesLogic';
@@ -141,6 +143,55 @@ export const VotesScreen = ({ route, navigation }: any) => {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
+      // Send Push Notifications
+      try {
+        let tokens: string[] = [];
+        if (juntada) {
+          // Si es votación de juntada, notificar solo a los que hicieron check-in
+          const { data: participantsData } = await supabase
+            .from('participants')
+            .select(`
+              user_id,
+              profiles!inner(expo_push_token, is_bot)
+            `)
+            .eq('juntada_id', juntada.id)
+            .neq('user_id', currentUser.id)
+            .eq('profiles.is_bot', false)
+            .not('profiles.expo_push_token', 'is', null);
+            
+          if (participantsData) {
+            tokens = participantsData.map((p: any) => p.profiles.expo_push_token).filter(Boolean);
+          }
+        } else {
+          // Si es de grupo, notificar a todos los miembros del grupo
+          const { data: groupMembersData } = await supabase
+            .from('group_members')
+            .select(`
+              user_id,
+              profiles!inner(expo_push_token, is_bot)
+            `)
+            .eq('group_id', groupId)
+            .neq('user_id', currentUser.id)
+            .eq('profiles.is_bot', false)
+            .not('profiles.expo_push_token', 'is', null);
+            
+          if (groupMembersData) {
+            tokens = groupMembersData.map((m: any) => m.profiles.expo_push_token).filter(Boolean);
+          }
+        }
+
+        if (tokens.length > 0) {
+          await sendPushNotifications(
+            tokens,
+            'Nueva Votación',
+            `Se ha creado una nueva votación: "${voteDesc}". ¡Ingresá para votar!`,
+            { groupId, juntadaId: juntada ? juntada.id : null, type: 'new_vote' }
+          );
+        }
+      } catch (pushError) {
+        console.error('Error sending push for vote', pushError);
+      }
+
       setShowCreateModal(false);
       setVoteDesc('');
       await fetchVotes(currentUser.id);

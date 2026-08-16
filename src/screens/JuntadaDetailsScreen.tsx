@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { decode } from 'base64-arraybuffer';
 import { useIsFocused } from '@react-navigation/native';
 import { injectMockUsers } from '../utils/mockGenerator';
+import { sendPushNotifications } from '../utils/notifications';
 import { Picker } from '@react-native-picker/picker';
 import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -196,6 +197,29 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
       setLoading(true);
       const { error } = await supabase.from('juntadas').update({ event_date: selectedDate.toISOString() }).eq('id', juntada.id);
       if (!error) {
+        // Notificar a todos los miembros del grupo sobre la postergación
+        const { data: membersData } = await supabase
+          .from('group_members')
+          .select(`
+            user_id,
+            profiles!inner(expo_push_token, is_bot)
+          `)
+          .eq('group_id', juntada.group_id)
+          .eq('profiles.is_bot', false)
+          .not('profiles.expo_push_token', 'is', null);
+
+        if (membersData && membersData.length > 0) {
+          const tokens = membersData.map((m: any) => m.profiles.expo_push_token).filter(Boolean);
+          if (tokens.length > 0) {
+            await sendPushNotifications(
+              tokens,
+              'Juntada Postergada',
+              `La juntada "${juntada.name}" ha sido postergada al ${selectedDate.toLocaleString()}.`,
+              { juntadaId: juntada.id, type: 'postpone_juntada' }
+            );
+          }
+        }
+
         Alert.alert('Juntada postergada', 'Se ha cambiado la fecha de la juntada.');
         juntada.event_date = selectedDate.toISOString();
         fetchData(); // refresh to show new date

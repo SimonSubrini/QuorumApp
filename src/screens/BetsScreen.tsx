@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, ScrollView, Alert, Modal, Image, KeyboardAvoidi
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
-import { NeoInput } from '../components/NeoInput';
+import { HelpModal } from '../components/HelpModal';
 import { supabase } from '../lib/supabase';
+import { sendPushNotifications } from '../utils/notifications';
 import { Picker } from '@react-native-picker/picker';
 import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 import { canUserBet, distributeBetPoints } from '../utils/betsLogic';
 import { NeoIconButton } from '../components/NeoIconButton';
+import { NeoInput } from '../components/NeoInput';
 
 export const BetsScreen = ({ route, navigation }: any) => {
   const { juntada } = route.params;
@@ -160,6 +162,34 @@ export const BetsScreen = ({ route, navigation }: any) => {
           }
         }
       }
+    }
+
+    // Notificar a los participantes de la juntada que hicieron check-in
+    try {
+      const { data: participantsData } = await supabase
+        .from('participants')
+        .select(`
+          user_id,
+          profiles!inner(expo_push_token, is_bot)
+        `)
+        .eq('juntada_id', juntada.id)
+        .neq('user_id', currentUser.id)
+        .eq('profiles.is_bot', false)
+        .not('profiles.expo_push_token', 'is', null);
+
+      if (participantsData && participantsData.length > 0) {
+        const tokens = participantsData.map((p: any) => p.profiles.expo_push_token).filter(Boolean);
+        if (tokens.length > 0) {
+          await sendPushNotifications(
+            tokens,
+            'Nueva Apuesta',
+            `Se ha creado una apuesta de ${amount} pts: "${newBetDesc}".`,
+            { juntadaId: juntada.id, type: 'new_bet' }
+          );
+        }
+      }
+    } catch (pushError) {
+      console.error('Error sending push for bet', pushError);
     }
     
     setShowCreateModal(false);

@@ -8,6 +8,7 @@ import { HelpModal } from '../components/HelpModal';
 import { supabase } from '../lib/supabase';
 import { useIsFocused } from '@react-navigation/native';
 import { getAvatarSource } from '../utils/avatars';
+import { registerForPushNotificationsAsync, savePushToken } from '../utils/notifications';
 
 export const DashboardScreen = ({ navigation }: any) => {
   const [groups, setGroups] = useState<any[]>([]);
@@ -22,6 +23,11 @@ export const DashboardScreen = ({ navigation }: any) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No estás autenticado');
+
+      // Registrar para Push Notifications
+      registerForPushNotificationsAsync().then(token => {
+        if (token) savePushToken(user.id, token);
+      });
 
       // Fetch user profile info
       const { data: profile } = await supabase

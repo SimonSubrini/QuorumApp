@@ -6,6 +6,7 @@ import { NeoButton } from '../components/NeoButton';
 import { NeoIconButton } from '../components/NeoIconButton';
 import { NeoInput } from '../components/NeoInput';
 import { supabase } from '../lib/supabase';
+import { sendPushNotifications } from '../utils/notifications';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -43,6 +44,30 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
         });
 
       if (error) throw error;
+
+      // Buscar tokens de los otros miembros del grupo para notificar (excluyendo al creador y bots)
+      const { data: membersData } = await supabase
+        .from('group_members')
+        .select(`
+          user_id,
+          profiles!inner(expo_push_token, is_bot)
+        `)
+        .eq('group_id', groupId)
+        .neq('user_id', user.id)
+        .eq('profiles.is_bot', false)
+        .not('profiles.expo_push_token', 'is', null);
+      
+      if (membersData && membersData.length > 0) {
+        const tokens = membersData.map((m: any) => m.profiles.expo_push_token).filter(Boolean);
+        if (tokens.length > 0) {
+          await sendPushNotifications(
+            tokens,
+            '¡Nueva Juntada Agendada!',
+            `Se ha creado la juntada "${name}" en tu grupo. ¡Preparate!`,
+            { groupId, type: 'new_juntada' }
+          );
+        }
+      }
 
       Alert.alert('Éxito', 'Juntada agendada correctamente');
       navigation.goBack();
