@@ -480,8 +480,8 @@ export const VotesScreen = ({ route, navigation }: any) => {
               </View>
 
               <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 10, marginTop: 20 }}>
-                <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Cancelar" onPress={() => setShowCreateModal(false)} variant="secondary" style={{height: '100%'}} /></View>
-                <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Crear" onPress={handleCreateVote} style={{height: '100%'}} /></View>
+                <NeoButton title="Cancelar" onPress={() => setShowCreateModal(false)} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />
+                <NeoButton title="Crear" onPress={handleCreateVote} style={{ flex: isLargeFont ? 0 : 1 }} />
               </View>
             </NeoCard>
           </ScrollView>
