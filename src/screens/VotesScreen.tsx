@@ -293,7 +293,7 @@ export const VotesScreen = ({ route, navigation }: any) => {
 
     return (
       <NeoCard key={vote.id} style={styles.voteCard}>
-        <View style={styles.voteHeader}>
+        <View style={[styles.voteHeader, { flexDirection: isLargeFont ? 'column' : 'row', alignItems: isLargeFont ? 'flex-start' : 'center', gap: isLargeFont ? 8 : 0 }]}>
           <View style={styles.badge}>
             <Text style={styles.badgeText}>
               {vote.type === 'acto_extraordinario' ? 'ACTO EXTRAORD.' : 
@@ -328,7 +328,7 @@ export const VotesScreen = ({ route, navigation }: any) => {
 
         {vote.status === 'activa' ? (
           <>
-            <View style={styles.resultsBar}>
+            <View style={[styles.resultsBar, isLargeFont && { flexDirection: 'column' }]}>
               <Text style={styles.resultText}>Sí: {yesCount}</Text>
               <Text style={styles.resultText}>No: {noCount}</Text>
             </View>
@@ -351,9 +351,8 @@ export const VotesScreen = ({ route, navigation }: any) => {
               <Text style={styles.votedText}>Ya emitiste tu voto.</Text>
             )}
           </>
-        ) : (
           <View style={styles.resultsBar}>
-            <Text style={styles.resultText}>Resultado Final: {yesCount} Sí, {noCount} No</Text>
+            <Text style={styles.resultText}>Resultado Final:{isLargeFont ? '\n' : ' '}{yesCount} Sí, {noCount} No</Text>
           </View>
         )}
       </NeoCard>
