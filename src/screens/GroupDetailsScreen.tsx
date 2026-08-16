@@ -439,12 +439,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: 12,
     marginBottom: 12,
+    gap: 8,
   },
   memberInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   rank: {
     fontSize: 24,
@@ -456,6 +458,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: theme.colors.text,
+    flexShrink: 1,
   },
   pointsBadge: {
     backgroundColor: theme.colors.secondary,
