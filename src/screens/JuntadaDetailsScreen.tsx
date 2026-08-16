@@ -5,6 +5,7 @@ import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
 import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
+import { canCreateMatchInJuntada, canModifyJuntadaDateOrState } from '../utils/juntadaLogic';
 import * as ImagePicker from 'expo-image-picker';
 import { decode } from 'base64-arraybuffer';
 import { useIsFocused } from '@react-navigation/native';
@@ -302,14 +303,14 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>PARTIDAS JUGADAS</Text>
           {hasCheckedIn && juntadaState !== 'finalizada' && (
-            <NeoButton 
-              title="+" 
+            <NeoIconButton 
+              icon="add" 
               onPress={() => {
-                if (attendees.length < 3) {
-                  Alert.alert('Faltan Jugadores', 'Se requieren al menos 3 personas con check-in para registrar partidas.');
-                } else {
-                  navigation.navigate('CreateMatch', { juntada, attendees });
+                if (!canCreateMatchInJuntada(attendees.length)) {
+                  Alert.alert('No permitido', 'Se requieren al menos 3 personas que hayan hecho check-in para poder jugar una partida.');
+                  return;
                 }
+                navigation.navigate('CreateMatch', { juntada, attendees });
               }}
               variant="primary"
               style={{ paddingHorizontal: 15 }}
@@ -368,7 +369,7 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
               )
             )}
             
-            {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && isCreator && attendees.length === 0 && (
+            {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && isCreator && canModifyJuntadaDateOrState(attendees.length) && (
                <View style={{ marginTop: 20, flexDirection: isLargeFont ? 'column' : 'row', gap: 10 }}>
                  <NeoButton title="Postergar" onPress={() => setShowDatePicker(true)} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />
                  <NeoButton title="Anular" onPress={handleCancelJuntada} variant="secondary" style={{ flex: isLargeFont ? 0 : 1 }} />

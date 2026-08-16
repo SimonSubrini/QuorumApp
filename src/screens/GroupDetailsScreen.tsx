@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image, Share } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, PixelRatio, Image, Share, Modal, FlatList, TouchableOpacity } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -16,6 +16,7 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
   const [activeTab, setActiveTab] = useState<'ranking' | 'juntadas'>('ranking');
   const [group, setGroup] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const isFocused = useIsFocused();
 
   const fontScale = PixelRatio.getFontScale();
@@ -42,7 +43,26 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
         .order('points', { ascending: false });
 
       if (membersError) throw membersError;
-      setMembers(membersData || []);
+
+      let processedMembers = membersData || [];
+      const membersToFix = processedMembers.filter((m: any) => m.points < 0);
+
+      if (membersToFix.length > 0) {
+        // 1.1 Corrección de puntajes negativos en la DB
+        for (const m of membersToFix) {
+          await supabase
+            .from('group_members')
+            .update({ points: 0 })
+            .eq('group_id', groupId)
+            .eq('user_id', m.user_id);
+        }
+        // 1.2 Corrección local y reordenamiento
+        processedMembers = processedMembers.map((m: any) => 
+          m.points < 0 ? { ...m, points: 0 } : m
+        ).sort((a: any, b: any) => b.points - a.points);
+      }
+
+      setMembers(processedMembers);
 
       // 2. Cargar Juntadas
       const { data: juntadasData, error: juntadasError } = await supabase
@@ -175,22 +195,53 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const handleRemoveMember = (member: any) => {
+    Alert.alert(
+      'Eliminar miembro',
+      `¿Estás seguro de que querés eliminar a ${member.profiles?.username} del grupo?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const { data, error } = await supabase
+                .from('group_members')
+                .delete()
+                .eq('group_id', groupId)
+                .eq('user_id', member.user_id)
+                .select();
+                
+              if (error) throw error;
+              if (!data || data.length === 0) {
+                throw new Error("No se pudo eliminar al miembro. Es probable que necesites habilitar la política RLS de DELETE para 'group_members' en Supabase.");
+              }
+              
+              await fetchData();
+            } catch (e: any) {
+              Alert.alert('Error', e.message);
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const isEnded = group?.end_date && new Date(group.end_date) < new Date();
   const isAdmin = currentUser?.id === group?.admin_id;
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <NeoIconButton
-            icon="log-out-outline"
-            onPress={handleLeaveGroup}
-            variant="secondary"
-            style={{ marginRight: 12 }}
-          />
+      <View style={[styles.header, { flexDirection: 'column', alignItems: 'stretch' }]}>
+        <View style={[styles.headerLeft, { flex: 0, width: '100%' }]}>
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>{groupName} {group?.season_number ? `(S${group.season_number})` : ''}</Text>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>
+              {groupName} {group?.season_number && group.season_number > 1 ? `(S${group.season_number})` : ''}
+            </Text>
             <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>ID: {groupId}</Text>
             {group?.end_date && (
               <Text style={styles.dateText} maxFontSizeMultiplier={1.2}>
@@ -199,9 +250,13 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
             )}
           </View>
         </View>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <NeoIconButton icon="share-social" onPress={handleShare} variant="secondary" />
-          <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, justifyContent: 'space-between' }}>
+          <NeoIconButton icon="log-out-outline" onPress={handleLeaveGroup} variant="secondary" />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <NeoIconButton icon="people-outline" onPress={() => setShowMembersModal(true)} variant="secondary" />
+            <NeoIconButton icon="share-social" onPress={handleShare} variant="secondary" />
+            <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
+          </View>
         </View>
       </View>
 
@@ -397,6 +452,39 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
 
         </ScrollView>
       )}
+
+      <Modal visible={showMembersModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Miembros del Grupo</Text>
+              <NeoIconButton icon="close" onPress={() => setShowMembersModal(false)} variant="secondary" />
+            </View>
+            <FlatList
+              data={members}
+              keyExtractor={(item) => item.user_id}
+              renderItem={({ item }) => (
+                <View style={styles.memberListItem}>
+                  <View style={styles.memberListInfo}>
+                    {item.profiles?.avatar_url ? (
+                      <Image source={getAvatarSource(item.profiles.avatar_url)!} style={styles.modalAvatarImage} />
+                    ) : (
+                      <View style={styles.modalAvatarFallbackContainer}>
+                        <Text style={styles.modalAvatarFallbackText}>{item.profiles?.username?.charAt(0).toUpperCase()}</Text>
+                      </View>
+                    )}
+                    <Text style={styles.memberListName}>{item.profiles?.username} {item.user_id === group?.admin_id ? '⭐' : ''}</Text>
+                  </View>
+                  {isAdmin && item.user_id !== currentUser?.id && (
+                    <NeoIconButton icon="trash-outline" onPress={() => handleRemoveMember(item)} variant="secondary" />
+                  )}
+                </View>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
@@ -640,5 +728,74 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: theme.colors.text,
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderColor: theme.colors.border,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: theme.colors.text,
+  },
+  memberListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  memberListInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  modalAvatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    marginRight: 12,
+  },
+  modalAvatarFallbackContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  modalAvatarFallbackText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  memberListName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
 });

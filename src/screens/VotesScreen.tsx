@@ -10,6 +10,7 @@ import { NeoInput } from '../components/NeoInput';
 import { Picker } from '@react-native-picker/picker';
 import { AdBannerPlaceholder } from '../components/AdBannerPlaceholder';
 import { isVoteApproved } from '../utils/votesLogic';
+import { applyVoteConsequences } from '../utils/voteResolver';
 import { NeoIconButton } from '../components/NeoIconButton';
 
 export const VotesScreen = ({ route, navigation }: any) => {
@@ -228,51 +229,28 @@ export const VotesScreen = ({ route, navigation }: any) => {
     const isApproved = isVoteApproved(yesCount, totalMembers);
     
     if (isApproved) {
-      if (vote.type === 'acto_extraordinario' || vote.type === 'castigo') {
-        const member = members.find(m => m.user_id === vote.target_user_id);
-        if (member) {
-          const newPoints = Math.max(0, Number(member.points) + Number(vote.points_modifier));
-          await supabase.from('group_members').update({ points: newPoints }).eq('id', member.id);
-        }
-      } else if (vote.type === 'anulacion_juego') {
-        // Buscar participantes de la partida y revertir sus puntos
-        const { data: matchPlayers } = await supabase
-          .from('match_players')
-          .select('*')
-          .eq('match_id', vote.target_match_id);
-        
-        if (matchPlayers) {
-          for (let mp of matchPlayers) {
-            if (mp.points_earned !== 0) {
-              const m = members.find(m => m.user_id === mp.user_id);
-              if (m) {
-                const newPoints = Math.max(0, Number(m.points) - Number(mp.points_earned));
-                await supabase.from('group_members').update({ points: newPoints }).eq('id', m.id);
-              }
-            }
-          }
-          // Borrar la partida
-          await supabase.from('matches').delete().eq('id', vote.target_match_id);
-        }
+      let matchPlayers = [];
+      let betParticipants = [];
+
+      if (vote.type === 'anulacion_juego') {
+        const { data } = await supabase.from('match_players').select('*').eq('match_id', vote.target_match_id);
+        if (data) matchPlayers = data;
       } else if (vote.type === 'anulacion_apuesta') {
-        const { data: betParticipants } = await supabase
-          .from('bet_participants')
-          .select('*')
-          .eq('bet_id', vote.target_bet_id);
-        
-        if (betParticipants) {
-          for (let bp of betParticipants) {
-            if (bp.points_won !== 0) {
-              const m = members.find(m => m.user_id === bp.user_id);
-              if (m) {
-                const newPoints = Math.max(0, Number(m.points) - Number(bp.points_won));
-                await supabase.from('group_members').update({ points: newPoints }).eq('id', m.id);
-              }
-            }
-          }
-          // Borrar la apuesta
-          await supabase.from('bets').delete().eq('id', vote.target_bet_id);
-        }
+        const { data } = await supabase.from('bet_participants').select('*').eq('bet_id', vote.target_bet_id);
+        if (data) betParticipants = data;
+      }
+
+      const consequences = applyVoteConsequences(vote, members, matchPlayers, betParticipants);
+
+      for (const update of consequences.memberUpdates) {
+        await supabase.from('group_members').update({ points: update.newPoints }).eq('id', update.id);
+      }
+
+      if (consequences.matchToDelete) {
+        await supabase.from('matches').delete().eq('id', consequences.matchToDelete);
+      }
+      if (consequences.betToDelete) {
+        await supabase.from('bets').delete().eq('id', consequences.betToDelete);
       }
     }
 

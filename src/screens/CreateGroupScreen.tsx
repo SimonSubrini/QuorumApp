@@ -6,6 +6,7 @@ import { NeoButton } from '../components/NeoButton';
 import { NeoInput } from '../components/NeoInput';
 import { NeoIconButton } from '../components/NeoIconButton';
 import { supabase } from '../lib/supabase';
+import { calculateSeasonEndDate, SeasonDuration } from '../utils/seasonLogic';
 import { Picker } from '@react-native-picker/picker';
 export const CreateGroupScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -26,10 +27,8 @@ export const CreateGroupScreen = ({ navigation }: any) => {
       if (!user) throw new Error('No estás autenticado');
 
       // 1. Crear el grupo
-      const endDate = new Date();
-      if (duration === '1_month') endDate.setMonth(endDate.getMonth() + 1);
-      else if (duration === '6_months') endDate.setMonth(endDate.getMonth() + 6);
-      else if (duration === '1_year') endDate.setFullYear(endDate.getFullYear() + 1);
+      const startDate = new Date();
+      const endDate = calculateSeasonEndDate(startDate, duration as SeasonDuration);
 
       const { data: group, error: groupError } = await supabase
         .from('groups')
