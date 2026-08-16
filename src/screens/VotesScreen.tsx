@@ -351,6 +351,7 @@ export const VotesScreen = ({ route, navigation }: any) => {
               <Text style={styles.votedText}>Ya emitiste tu voto.</Text>
             )}
           </>
+        ) : (
           <View style={styles.resultsBar}>
             <Text style={styles.resultText}>Resultado Final:{isLargeFont ? '\n' : ' '}{yesCount} Sí, {noCount} No</Text>
           </View>
