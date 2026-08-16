@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform, Image, TouchableOpacity, PixelRatio } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -27,6 +27,8 @@ export const VotesScreen = ({ route, navigation }: any) => {
 
   // Modal Crear
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const fontScale = PixelRatio.getFontScale();
+  const isLargeFont = fontScale > 1.2;
   const [voteType, setVoteType] = useState('acto_extraordinario');
   const [targetUserId, setTargetUserId] = useState('');
   const [targetMatchId, setTargetMatchId] = useState('');
@@ -340,12 +342,9 @@ export const VotesScreen = ({ route, navigation }: any) => {
               />
             ) : !hasVoted ? (
               <View style={styles.voteActions}>
-                <View style={{ flex: 1 }}>
-                  <NeoButton title="VOTAR SÍ" onPress={() => castVote(vote.id, true)} />
-                </View>
-                <View style={{ width: 10 }} />
-                <View style={{ flex: 1 }}>
-                  <NeoButton title="VOTAR NO" onPress={() => castVote(vote.id, false)} variant="secondary" />
+                <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 10, marginTop: 10 }}>
+                  <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="VOTAR SÍ" onPress={() => castVote(vote.id, true)} style={{height: '100%'}} /></View>
+                  <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="VOTAR NO" onPress={() => castVote(vote.id, false)} variant="secondary" style={{height: '100%'}} /></View>
                 </View>
               </View>
             ) : (
@@ -366,7 +365,10 @@ export const VotesScreen = ({ route, navigation }: any) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
-          <Text style={styles.title} numberOfLines={1}>VOTACIONES</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>{juntada ? juntada.name : 'VOTACIONES'}</Text>
+            <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>{juntada ? 'De Juntada' : 'De Grupo'}</Text>
+          </View>
         </View>
         <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
       </View>
@@ -477,9 +479,9 @@ export const VotesScreen = ({ route, navigation }: any) => {
                 </Picker>
               </View>
 
-              <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
-                <View style={{flex: 1}}><NeoButton title="Cancelar" onPress={() => setShowCreateModal(false)} variant="secondary" /></View>
-                <View style={{flex: 1}}><NeoButton title="Crear" onPress={handleCreateVote} /></View>
+              <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 10, marginTop: 20 }}>
+                <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Cancelar" onPress={() => setShowCreateModal(false)} variant="secondary" style={{height: '100%'}} /></View>
+                <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Crear" onPress={handleCreateVote} style={{height: '100%'}} /></View>
               </View>
             </NeoCard>
           </ScrollView>
@@ -500,7 +502,8 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 },
   headerLogo: { width: 40, height: 40, marginRight: 12 },
-  title: { fontSize: 24, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
+  title: { fontSize: 20, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
+  subtitle: { fontSize: 12, color: theme.colors.text, fontWeight: 'bold' },
   scrollContent: { padding: 20 },
   voteCard: { padding: 20, marginBottom: 15 },
   voteHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },

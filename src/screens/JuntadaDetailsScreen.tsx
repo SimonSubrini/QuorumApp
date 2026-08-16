@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, ScrollView, Image, TouchableOpacity, PixelRatio } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -17,8 +17,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
   const { juntada } = route.params;
   const [loading, setLoading] = useState(false);
+  const fontScale = PixelRatio.getFontScale();
+  const isLargeFont = fontScale > 1.2;
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [attendees, setAttendees] = useState<any[]>([]);
+  const [group, setGroup] = useState<any>(null);
   const [matches, setMatches] = useState<any[]>([]);
   const [juntadaState, setJuntadaState] = useState(juntada.state);
   const [photoUrl, setPhotoUrl] = useState(juntada.photo_url);
@@ -36,6 +39,14 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
       .eq('juntada_id', juntada.id);
     
     setAttendees(attendeesData || []);
+
+    const { data: groupData } = await supabase
+      .from('groups')
+      .select('name')
+      .eq('id', juntada.group_id)
+      .single();
+    
+    setGroup(groupData);
 
     const { data: matchesData } = await supabase
       .from('matches')
@@ -197,7 +208,6 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
       setLoading(true);
       const { error } = await supabase.from('juntadas').update({ event_date: selectedDate.toISOString() }).eq('id', juntada.id);
       if (!error) {
-        // Notificar a todos los miembros del grupo sobre la postergación
         const { data: membersData } = await supabase
           .from('group_members')
           .select(`
@@ -222,7 +232,7 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
 
         Alert.alert('Juntada postergada', 'Se ha cambiado la fecha de la juntada.');
         juntada.event_date = selectedDate.toISOString();
-        fetchData(); // refresh to show new date
+        fetchData();
       } else {
         Alert.alert('Error', error.message);
       }
@@ -241,7 +251,10 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
           <TouchableOpacity onLongPress={handleInjectMocks} delayLongPress={2000}>
             <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           </TouchableOpacity>
-          <Text style={styles.title} numberOfLines={1}>{juntada.name}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>{juntada?.name || 'JUNTADA'}</Text>
+            <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>Grupo: {group?.name}</Text>
+          </View>
         </View>
         <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
       </View>
@@ -356,9 +369,9 @@ export const JuntadaDetailsScreen = ({ route, navigation }: any) => {
             )}
             
             {juntadaState !== 'finalizada' && juntadaState !== 'cancelada' && isCreator && attendees.length === 0 && (
-               <View style={{ marginTop: 20, flexDirection: 'row', gap: 10 }}>
-                 <View style={{flex: 1}}><NeoButton title="Postergar" onPress={() => setShowDatePicker(true)} variant="secondary" /></View>
-                 <View style={{flex: 1}}><NeoButton title="Anular" onPress={handleCancelJuntada} variant="secondary" /></View>
+               <View style={{ marginTop: 20, flexDirection: isLargeFont ? 'column' : 'row', gap: 10 }}>
+                 <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Postergar" onPress={() => setShowDatePicker(true)} variant="secondary" style={{height: '100%'}} /></View>
+                 <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Anular" onPress={handleCancelJuntada} variant="secondary" style={{height: '100%'}} /></View>
                </View>
             )}
 
@@ -418,13 +431,8 @@ const styles = StyleSheet.create({
     height: 40,
     marginRight: 12,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: theme.colors.primary,
-    textTransform: 'uppercase',
-    flex: 1,
-  },
+  title: { fontSize: 20, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
+  subtitle: { fontSize: 12, color: theme.colors.text, fontWeight: 'bold' },
   scrollContent: {
     padding: 20,
   },

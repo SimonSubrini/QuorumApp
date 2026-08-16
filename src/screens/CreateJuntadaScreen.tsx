@@ -136,18 +136,20 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
 
           <Text style={styles.label}>Fecha y Hora</Text>
           <View style={{flexDirection: isLargeFont ? 'column' : 'row', gap: 8, marginBottom: 8}}>
-            <View style={{flex: 1}}>
+            <View style={{flex: isLargeFont ? 0 : 1}}>
               <NeoButton 
                 title={eventDate.toLocaleDateString()} 
                 onPress={() => setShowDatePicker(true)} 
                 variant="secondary"
+                style={{ height: '100%' }}
               />
             </View>
-            <View style={{flex: 1}}>
+            <View style={{flex: isLargeFont ? 0 : 1}}>
               <NeoButton 
                 title={eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} 
                 onPress={() => setShowTimePicker(true)} 
                 variant="secondary"
+                style={{ height: '100%' }}
               />
             </View>
           </View>
@@ -172,17 +174,19 @@ export const CreateJuntadaScreen = ({ route, navigation }: any) => {
           
           <View style={styles.spacer} />
           
-          <NeoButton 
-            title={loading ? 'Agendando...' : 'Confirmar'} 
-            onPress={handleCreate} 
-            disabled={loading}
-          />
-          
-          <NeoButton 
-            title="Cancelar" 
-            onPress={() => navigation.goBack()} 
-            variant="secondary"
-          />
+          <View style={{ gap: 8 }}>
+            <NeoButton 
+              title={loading ? 'Agendando...' : 'Confirmar'} 
+              onPress={handleCreate} 
+              disabled={loading}
+            />
+            
+            <NeoButton 
+              title="Cancelar" 
+              onPress={() => navigation.goBack()} 
+              variant="secondary"
+            />
+          </View>
         </NeoCard>
       </ScrollView>
     </KeyboardAvoidingView>

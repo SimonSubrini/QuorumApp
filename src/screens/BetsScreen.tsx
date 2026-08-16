@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Modal, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform, TouchableOpacity, Image, PixelRatio } from 'react-native';
 import { theme } from '../styles/theme';
 import { NeoCard } from '../components/NeoCard';
 import { NeoButton } from '../components/NeoButton';
@@ -32,6 +32,9 @@ export const BetsScreen = ({ route, navigation }: any) => {
   // Modal Resolver
   const [resolvingBet, setResolvingBet] = useState<any>(null);
   const [winnerOptionId, setWinnerOptionId] = useState<string>('');
+
+  const fontScale = PixelRatio.getFontScale();
+  const isLargeFont = fontScale > 1.2;
 
   useEffect(() => {
     loadInitialData();
@@ -348,8 +351,8 @@ export const BetsScreen = ({ route, navigation }: any) => {
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.title} numberOfLines={1}>APUESTAS</Text>
-            <Text style={styles.subtitle} numberOfLines={1}>Saldo: {currentMember?.points ?? 0} pts | Apostado: {userBetTotal}/3</Text>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>APUESTAS</Text>
+            <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>Saldo: {currentMember?.points ?? 0} pts | Apostado: {userBetTotal}/3</Text>
           </View>
         </View>
         <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
@@ -427,9 +430,9 @@ export const BetsScreen = ({ route, navigation }: any) => {
               </Picker>
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
-              <View style={{flex: 1}}><NeoButton title="Cancelar" onPress={() => setShowCreateModal(false)} variant="secondary" /></View>
-              <View style={{flex: 1}}><NeoButton title="Crear" onPress={handleCreateBet} /></View>
+            <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 10, marginTop: 20 }}>
+              <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Cancelar" onPress={() => setShowCreateModal(false)} variant="secondary" style={{height: '100%'}} /></View>
+              <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Crear" onPress={handleCreateBet} style={{height: '100%'}} /></View>
             </View>
             </NeoCard>
           </ScrollView>
@@ -453,9 +456,9 @@ export const BetsScreen = ({ route, navigation }: any) => {
               </Picker>
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 20 }}>
-              <View style={{flex: 1}}><NeoButton title="Cancelar" onPress={() => setResolvingBet(null)} variant="secondary" /></View>
-              <View style={{flex: 1}}><NeoButton title="Resolver" onPress={resolveBet} disabled={!winnerOptionId} /></View>
+            <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 10, marginTop: 20 }}>
+              <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Cancelar" onPress={() => setResolvingBet(null)} variant="secondary" style={{height: '100%'}} /></View>
+              <View style={{flex: isLargeFont ? 0 : 1}}><NeoButton title="Resolver" onPress={resolveBet} disabled={!winnerOptionId} style={{height: '100%'}} /></View>
             </View>
           </NeoCard>
         </View>
@@ -475,8 +478,8 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 },
   headerLogo: { width: 40, height: 40, marginRight: 12 },
-  title: { fontSize: 24, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
-  subtitle: { fontSize: 14, color: theme.colors.text, fontWeight: 'bold' },
+  title: { fontSize: 20, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
+  subtitle: { fontSize: 12, color: theme.colors.text, fontWeight: 'bold' },
   scrollContent: { padding: 20 },
   betCard: { padding: 20, marginBottom: 15 },
   betHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },

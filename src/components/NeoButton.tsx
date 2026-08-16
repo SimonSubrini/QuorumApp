@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
     shadowOpacity: theme.shadows.neoBrutalism.shadowOpacity,
     shadowRadius: theme.shadows.neoBrutalism.shadowRadius,
     elevation: theme.shadows.neoBrutalism.elevation,
-    marginVertical: 8,
   },
   text: {
     fontSize: theme.typography.sizes.lg,

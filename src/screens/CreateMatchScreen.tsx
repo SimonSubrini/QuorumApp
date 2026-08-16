@@ -265,17 +265,19 @@ export const CreateMatchScreen = ({ route, navigation }: any) => {
 
           <View style={styles.spacer} />
           
-          <NeoButton 
-            title={loading ? 'Guardando...' : 'Guardar Partida'} 
-            onPress={handleCreate} 
-            disabled={loading}
-          />
-          
-          <NeoButton 
-            title="Cancelar" 
-            onPress={() => navigation.goBack()} 
-            variant="secondary"
-          />
+          <View style={{ gap: 8 }}>
+            <NeoButton 
+              title={loading ? 'Guardando...' : 'Guardar Partida'} 
+              onPress={handleCreate} 
+              disabled={loading}
+            />
+            
+            <NeoButton 
+              title="Cancelar" 
+              onPress={() => navigation.goBack()} 
+              variant="secondary"
+            />
+          </View>
         </NeoCard>
       </ScrollView>
     </KeyboardAvoidingView>

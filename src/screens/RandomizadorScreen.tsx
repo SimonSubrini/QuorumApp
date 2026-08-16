@@ -147,8 +147,8 @@ export const RandomizadorScreen = ({ route, navigation }: any) => {
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.title} numberOfLines={1}>RANDOMIZADOR</Text>
-            <Text style={styles.subtitle} numberOfLines={1}>Juntada: {juntada.name}</Text>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>RANDOMIZADOR</Text>
+            <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>Juntada: {juntada.name}</Text>
           </View>
         </View>
         <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
@@ -194,7 +194,7 @@ export const RandomizadorScreen = ({ route, navigation }: any) => {
               onChangeText={setTeamSize}
               keyboardType="number-pad"
             />
-            <NeoButton title="Sortear Equipos" onPress={generateTeams} />
+            <NeoButton title="Sortear Equipos" onPress={generateTeams} style={{ marginTop: 15 }} />
             
             {teamResults.length > 0 && (
               <View style={styles.resultsContainer}>
@@ -214,7 +214,7 @@ export const RandomizadorScreen = ({ route, navigation }: any) => {
         {activeMode === 'list' && (
           <NeoCard style={styles.card}>
             <Text style={styles.description}>Ordena a los asistentes aleatoriamente.</Text>
-            <NeoButton title="Sortear Lista" onPress={generateList} />
+            <NeoButton title="Sortear Lista" onPress={generateList} style={{ marginTop: 15 }} />
             
             {listResults.length > 0 && (
               <View style={styles.resultsContainer}>
@@ -237,7 +237,7 @@ export const RandomizadorScreen = ({ route, navigation }: any) => {
               onChangeText={setBracketTeamsInput}
               placeholder="Ej: A, B, C, D"
             />
-            <NeoButton title="Iniciar Torneo" onPress={generateBracket} />
+            <NeoButton title="Iniciar Torneo" onPress={generateBracket} style={{ marginTop: 15 }} />
             
             {bracketRounds.length > 0 && (
               <View style={styles.resultsContainer}>
@@ -318,7 +318,7 @@ export const RandomizadorScreen = ({ route, navigation }: any) => {
                 />
               </View>
             </View>
-            <NeoButton title="Tirar Dado" onPress={generateNumber} />
+            <NeoButton title="Tirar Dado" onPress={generateNumber} style={{ marginTop: 15 }} />
             
             {numResult !== null && (
               <View style={styles.numberResultBox}>
@@ -344,8 +344,8 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 },
   headerLogo: { width: 40, height: 40, marginRight: 12 },
-  title: { fontSize: 24, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
-  subtitle: { fontSize: 14, color: theme.colors.text, fontWeight: 'bold' },
+  title: { fontSize: 20, fontWeight: '900', color: theme.colors.primary, textTransform: 'uppercase' },
+  subtitle: { fontSize: 12, color: theme.colors.text, fontWeight: 'bold' },
   tabs: {
     padding: 10, borderBottomWidth: 4, borderBottomColor: theme.colors.border,
     backgroundColor: theme.colors.background,

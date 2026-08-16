@@ -179,10 +179,10 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
           />
           <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{groupName} {group?.season_number ? `(S${group.season_number})` : ''}</Text>
-            <Text style={styles.subtitle}>ID: {groupId}</Text>
+            <Text style={styles.title} maxFontSizeMultiplier={1.2} adjustsFontSizeToFit>{groupName} {group?.season_number ? `(S${group.season_number})` : ''}</Text>
+            <Text style={styles.subtitle} maxFontSizeMultiplier={1.2}>ID: {groupId}</Text>
             {group?.end_date && (
-              <Text style={styles.dateText}>
+              <Text style={styles.dateText} maxFontSizeMultiplier={1.2}>
                 Vence: {new Date(group.end_date).toLocaleDateString()}
               </Text>
             )}
@@ -191,20 +191,22 @@ export const GroupDetailsScreen = ({ route, navigation }: any) => {
         <NeoIconButton icon="arrow-back" onPress={() => navigation.goBack()} variant="secondary" />
       </View>
 
-      <View style={{ padding: 20, paddingBottom: 0 }}>
-        <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: isLargeFont ? 8 : 8, marginBottom: 8 }}>
-          <View style={{ flex: 1 }}>
+      <View style={{ padding: 20, paddingBottom: 0, gap: 8 }}>
+        <View style={{ flexDirection: isLargeFont ? 'column' : 'row', gap: 8 }}>
+          <View style={{ flex: isLargeFont ? 0 : 1 }}>
             <NeoButton
               title={group?.state === 'finalizado' ? 'CEREMONIA' : 'RANKING'}
               onPress={() => setActiveTab('ranking')}
               variant={activeTab === 'ranking' ? 'primary' : 'secondary'}
+              style={{ height: '100%' }}
             />
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: isLargeFont ? 0 : 1 }}>
             <NeoButton
               title="JUNTADAS"
               onPress={() => setActiveTab('juntadas')}
               variant={activeTab === 'juntadas' ? 'primary' : 'secondary'}
+              style={{ height: '100%' }}
             />
           </View>
         </View>
@@ -422,7 +424,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '900',
     color: theme.colors.primary,
     textTransform: 'uppercase',
