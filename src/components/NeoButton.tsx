@@ -9,6 +9,7 @@ interface NeoButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   disabled?: boolean;
+  testID?: string;
 }
 
 export const NeoButton: React.FC<NeoButtonProps> = ({ 
@@ -17,7 +18,8 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
   variant = 'primary', 
   style, 
   textStyle,
-  disabled = false
+  disabled = false,
+  testID
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -42,6 +44,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
       activeOpacity={1}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}

@@ -43,21 +43,22 @@ export const HelpModal = ({ visible, onClose }: HelpModalProps) => {
   if (!visible) return null;
 
   return (
-    <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
+    <Modal testID="help-modal" transparent animationType="fade" visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <NeoCard style={styles.modalCard}>
           <View style={styles.header}>
-            <Text style={styles.title}>{HELP_SLIDES[currentSlide].title}</Text>
+            <Text testID="help-title" style={styles.title}>{HELP_SLIDES[currentSlide].title}</Text>
           </View>
           
           <View style={styles.contentContainer}>
-            <Text style={styles.content}>{HELP_SLIDES[currentSlide].content}</Text>
+            <Text testID="help-content" style={styles.content}>{HELP_SLIDES[currentSlide].content}</Text>
           </View>
 
           <View style={styles.pagination}>
             {HELP_SLIDES.map((_, index) => (
               <View 
                 key={index} 
+                testID={`pagination-dot-${index}`}
                 style={[
                   styles.dot, 
                   currentSlide === index && styles.dotActive
@@ -68,6 +69,7 @@ export const HelpModal = ({ visible, onClose }: HelpModalProps) => {
 
           <View style={styles.footer}>
             <NeoIconButton 
+              testID="prev-btn"
               icon="chevron-back" 
               onPress={handlePrev} 
               variant={currentSlide === 0 ? 'secondary' : 'primary'} 
@@ -75,11 +77,12 @@ export const HelpModal = ({ visible, onClose }: HelpModalProps) => {
             
             {currentSlide === HELP_SLIDES.length - 1 ? (
               <View style={{ flex: 1, marginLeft: 10 }}>
-                <NeoButton title="¡ENTENDIDO!" onPress={onClose} />
+                <NeoButton testID="close-btn" title="¡ENTENDIDO!" onPress={onClose} />
               </View>
             ) : (
               <View style={{ flex: 1, marginLeft: 10, alignItems: 'flex-end' }}>
                 <NeoIconButton 
+                  testID="next-btn"
                   icon="chevron-forward" 
                   onPress={handleNext} 
                   variant="primary" 

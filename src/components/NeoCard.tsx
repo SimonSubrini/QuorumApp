@@ -5,14 +5,21 @@ import { theme } from '../styles/theme';
 interface NeoCardProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
+  accessibilityRole?: 'summary' | 'adjustable' | 'header' | 'none';
 }
 
-export const NeoCard: React.FC<NeoCardProps> = ({ children, style }) => {
+export const NeoCard: React.FC<NeoCardProps> = ({ children, style, testID, accessibilityRole }) => {
   const fontScale = PixelRatio.getFontScale();
   const isLargeFont = fontScale > 1.2;
   
   return (
-    <View style={[styles.container, isLargeFont && styles.containerLargeFont, style]}>
+    <View 
+      testID={testID}
+      accessible={!!accessibilityRole}
+      accessibilityRole={accessibilityRole}
+      style={[styles.container, isLargeFont && styles.containerLargeFont, style]}
+    >
       {children}
     </View>
   );

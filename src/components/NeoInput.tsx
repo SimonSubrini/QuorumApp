@@ -21,12 +21,15 @@ export const NeoInput: React.FC<NeoInputProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[
+      <View 
+        testID="neo-input-wrapper"
+        style={[
         styles.inputWrapper,
         isFocused && styles.inputWrapperFocused,
         error && styles.inputWrapperError
       ]}>
         <TextInput
+          testID="neo-input-field"
           style={[styles.input, secureTextEntry && { paddingRight: 50 }]}
           placeholderTextColor="#A0A0A0"
           secureTextEntry={isSecure}
@@ -42,6 +45,7 @@ export const NeoInput: React.FC<NeoInputProps> = ({
         />
         {secureTextEntry && (
           <TouchableOpacity 
+            testID="neo-input-visibility-toggle"
             style={styles.eyeButton} 
             onPress={() => setIsSecure(!isSecure)}
           >

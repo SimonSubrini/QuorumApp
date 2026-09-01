@@ -10,6 +10,8 @@ interface NeoIconButtonProps {
   style?: ViewStyle;
   disabled?: boolean;
   size?: number;
+  testID?: string;
+  accessibilityLabel?: string;
 }
 
 export const NeoIconButton: React.FC<NeoIconButtonProps> = ({ 
@@ -18,7 +20,9 @@ export const NeoIconButton: React.FC<NeoIconButtonProps> = ({
   variant = 'primary', 
   style, 
   disabled = false,
-  size = 24
+  size = 24,
+  testID,
+  accessibilityLabel
 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -41,6 +45,10 @@ export const NeoIconButton: React.FC<NeoIconButtonProps> = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="button"
+      accessible={true}
       activeOpacity={1}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}

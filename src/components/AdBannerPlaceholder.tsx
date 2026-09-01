@@ -4,8 +4,8 @@ import { theme } from '../styles/theme';
 
 export const AdBannerPlaceholder = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Espacio reservado para Anuncio (AdMob)</Text>
+    <View style={styles.container} testID="ad-banner-container">
+      <Text style={styles.text} numberOfLines={1}>Espacio reservado para Anuncio (AdMob)</Text>
       <Text style={styles.subtext}>320x50</Text>
     </View>
   );
